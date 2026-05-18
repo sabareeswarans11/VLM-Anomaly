@@ -1,0 +1,172 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "vlm-anomaly"
+version = "0.1.0"
+description = "Zero-shot industrial anomaly detection benchmark: cloud VLMs, classical baselines, and on-device MiniCPM-V on iPhone."
+readme = "README.md"
+license = { file = "LICENSE" }
+authors = [
+    { name = "Sabareeswaran S", email = "sabareeswarans11@gmail.com" },
+]
+keywords = [
+    "anomaly-detection",
+    "vision-language-models",
+    "vlm",
+    "mvtec",
+    "visa",
+    "minicpm",
+    "edge-ai",
+    "benchmark",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Image Recognition",
+]
+requires-python = ">=3.11"
+dependencies = [
+    "httpx>=0.28.0",
+    "pydantic>=2.10.0",
+    "pydantic-settings>=2.6.0",
+    "structlog>=24.4.0",
+    "Pillow>=11.0.0",
+    "duckdb>=1.1.0",
+    "scikit-learn>=1.6.0",
+    "matplotlib>=3.9.0",
+    "seaborn>=0.13.0",
+    "mlflow>=2.18.0",
+    "pyyaml>=6.0.0",
+    "python-dotenv>=1.0.0",
+    "tenacity>=9.0.0",
+    "numpy>=1.26.0",
+    "pandas>=2.2.0",
+    "tqdm>=4.67.0",
+]
+
+[project.optional-dependencies]
+classical = [
+    "anomalib>=1.2.0",
+    "torch>=2.5.0",
+    "torchvision>=0.20.0",
+    "timm>=1.0.0",
+]
+edge = [
+    "llama-cpp-python>=0.3.2",
+]
+edge-mlx = [
+    "mlx-vlm>=0.1.10; platform_system=='Darwin' and platform_machine=='arm64'",
+]
+dev = [
+    "pytest>=8.3.0",
+    "pytest-cov>=6.0.0",
+    "ruff>=0.8.0",
+    "pre-commit>=4.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/sabareeswarans11/VLM-Anomaly"
+Repository = "https://github.com/sabareeswarans11/VLM-Anomaly"
+Issues = "https://github.com/sabareeswarans11/VLM-Anomaly/issues"
+
+[project.scripts]
+vlm-anomaly = "vlm_anomaly.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/vlm_anomaly"]
+
+# ── Ruff ────────────────────────────────────────────────────────────────────
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["src", "tests", "scripts"]
+extend-exclude = [
+    "venv",
+    ".venv",
+    "notebooks",
+    "ios",
+    "data",
+    "models",
+    "mlruns",
+]
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # pyflakes
+    "I",    # isort
+    "N",    # pep8-naming
+    "UP",   # pyupgrade
+    "B",    # flake8-bugbear
+    "C4",   # flake8-comprehensions
+    "SIM",  # flake8-simplify
+    "RUF",  # ruff-specific
+    "PL",   # pylint
+    "PT",   # pytest-style
+    "TID",  # tidy-imports
+]
+ignore = [
+    "E501",    # line length handled by formatter
+    "PLR0913", # too many arguments
+    "PLR2004", # magic value comparison
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = ["PLR2004", "S101", "TID252"]
+"scripts/**/*.py" = ["T201"]  # allow print() in scripts
+
+[tool.ruff.lint.isort]
+known-first-party = ["vlm_anomaly"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "auto"
+
+# ── Pytest ──────────────────────────────────────────────────────────────────
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests"]
+addopts = [
+    "-ra",
+    "--strict-markers",
+    "--strict-config",
+    "--showlocals",
+    "-v",
+]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: requires network or API keys (deselect with '-m \"not integration\"')",
+    "edge: exercises on-device edge VLM backends",
+]
+filterwarnings = [
+    "error",
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning",
+]
+
+# ── Coverage ────────────────────────────────────────────────────────────────
+[tool.coverage.run]
+branch = true
+source = ["src/vlm_anomaly"]
+omit = [
+    "*/__init__.py",
+    "*/cli.py",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+]
+show_missing = true
+skip_covered = false

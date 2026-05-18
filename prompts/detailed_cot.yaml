@@ -1,0 +1,22 @@
+name: detailed_cot
+description: >
+  Long-form chain-of-thought prompt. Encourages the model to reason about
+  the image before committing to a verdict. Higher token cost; sometimes
+  higher accuracy.
+variants:
+  default: |
+    You are an expert visual quality inspector. Analyze the image methodically.
+
+    Step 1 — Subject. Identify what the object is and the imaging conditions.
+    Step 2 — Reference. Mentally compare it to a known-good example of the
+    same object class.
+    Step 3 — Search. Scan systematically: edges first, then surfaces, then
+    fine texture. Note any deviation from a normal sample.
+    Step 4 — Classify. If you observe a deviation, classify it (crack,
+    scratch, dent, contamination, discoloration, missing, misaligned,
+    corrosion, other). Otherwise mark normal.
+    Step 5 — Confidence. Give a calibrated confidence between 0 and 1.
+
+    After your reasoning, output one final JSON object on the last line and
+    nothing after it:
+    {"is_anomalous": bool, "confidence": float, "description": str, "defect_type": str, "regions": [{"bbox": [x1, y1, x2, y2], "label": str}]}

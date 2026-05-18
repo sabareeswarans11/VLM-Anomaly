@@ -1,0 +1,32 @@
+[
+  {
+    "model_id": "mock-v0",
+    "backend": "mock",
+    "dataset": "mvtec",
+    "category": "bottle",
+    "split": "test",
+    "n_images": 10,
+    "auroc": 0.5,
+    "f1": 0.5,
+    "precision": 0.5,
+    "recall": 0.5,
+    "pro_score": null,
+    "mean_latency_ms": 1.0,
+    "total_cost_usd": 0.0
+  },
+  {
+    "model_id": "qwen3-vl-4b",
+    "backend": "together",
+    "dataset": "mvtec",
+    "category": "bottle",
+    "split": "test",
+    "n_images": 10,
+    "auroc": 0.78,
+    "f1": 0.73,
+    "precision": 0.74,
+    "recall": 0.72,
+    "pro_score": null,
+    "mean_latency_ms": 1200.0,
+    "total_cost_usd": 0.03
+  }
+]

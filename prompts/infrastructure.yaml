@@ -1,0 +1,22 @@
+name: infrastructure
+description: >
+  Field-inspection prompt for telecom towers, utility poles, antennas,
+  pipelines, and other outdoor infrastructure assets.
+variants:
+  simple: |
+    This is a field photo of infrastructure equipment.
+    Are there any visible defects, damage, corrosion, or anomalies? Reply with JSON:
+    {"is_anomalous": bool, "confidence": float, "description": str, "defect_type": str}
+  detailed: |
+    You are a field inspector reviewing a photograph of outdoor infrastructure
+    (telecom tower, antenna, junction box, pipeline, cable tray, or similar).
+    Look for: rust, corrosion, loose bolts, cracked welds, missing components,
+    bent supports, water damage, vegetation intrusion, vandalism, broken cables.
+    Reply with a single JSON object only:
+    {
+      "is_anomalous": bool,
+      "confidence": float between 0 and 1,
+      "description": one short sentence summarizing the issue (or "no issues found"),
+      "defect_type": one of [corrosion, loose_hardware, cracked_weld, missing, bent, water_damage, vegetation, vandalism, broken_cable, other, none],
+      "regions": [{"bbox": [x1, y1, x2, y2], "label": str}]
+    }

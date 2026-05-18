@@ -1,0 +1,115 @@
+# ── AI assistant / agent artifacts ──────────────────────────────────────────
+.claude/
+.claude_code/
+.clauderc
+.anthropic/
+CLAUDE.local.md
+AGENTS.md
+.aider*
+.cursor/
+.continue/
+.codex/
+.copilot/
+
+# ── Python ──────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Testing / coverage
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+coverage.xml
+*.cover
+.hypothesis/
+.ruff_cache/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# ── Secrets / config ────────────────────────────────────────────────────────
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# ── Data, models, results artifacts ─────────────────────────────────────────
+data/
+models/
+mlruns/
+mlartifacts/
+*.gguf
+*.safetensors
+*.bin
+*.pt
+*.pth
+*.onnx
+*.mlpackage/
+*.mlmodel
+*.mlmodelc/
+
+# Datasets (MVTec, VisA, custom)
+data/mvtec*/
+data/visa*/
+data/infra*/
+
+# ── IDE / OS ────────────────────────────────────────────────────────────────
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# ── iOS / Xcode ─────────────────────────────────────────────────────────────
+ios/**/build/
+ios/**/DerivedData/
+ios/**/xcuserdata/
+ios/**/*.xcuserstate
+ios/**/Pods/
+ios/**/Carthage/Build/
+ios/**/.swiftpm/
+ios/**/Models/*.gguf
+ios/**/Models/*.safetensors
+
+# ── Misc ────────────────────────────────────────────────────────────────────
+*.log
+*.tmp
+node_modules/
