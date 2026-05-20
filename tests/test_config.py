@@ -22,10 +22,12 @@ class TestSettingsDefaults:
             s = Settings(_env_file=str(tmp_path / "nonexistent.env"))
         assert s.default_budget_usd == 5.0
 
-    def test_api_keys_default_to_none(self) -> None:
+    def test_api_keys_default_to_none(self, tmp_path: Path) -> None:
+        # Clear API-key env vars AND redirect env_file so a real .env on disk
+        # doesn't leak keys into the test.
         clean = {k: v for k, v in os.environ.items() if not k.endswith("_API_KEY")}
         with patch.dict(os.environ, clean, clear=True):
-            s = Settings()
+            s = Settings(_env_file=str(tmp_path / "empty.env"))
         assert s.together_api_key is None
         assert s.gemini_api_key is None
         assert s.anthropic_api_key is None
