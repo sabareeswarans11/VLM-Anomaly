@@ -26,6 +26,7 @@ class MockVLMBackend(VLMBackend):
         digest = hashlib.sha256(str(image).encode()).digest()
         confidence = digest[0] / 255.0
         return AnomalyPrediction(
+            image_path=image,
             is_anomalous=confidence >= self._threshold,
             confidence=confidence,
             description=f"mock prediction for {image.name}",

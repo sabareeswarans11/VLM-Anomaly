@@ -20,9 +20,16 @@ class AnomalySample:
 
 
 class AnomalyDataset(ABC):
-    """Common interface that every dataset loader must implement."""
+    """Common interface that every dataset loader must implement.
+
+    Subclasses must accept ``root_dir`` in ``__init__`` and store it as
+    ``self.root_dir``.  This is enforced by convention (not the ABC) so that
+    callers can always predict where data lives without interrogating each
+    concrete class.
+    """
 
     name: str
+    root_dir: Path  # set by every concrete subclass __init__
 
     @abstractmethod
     def categories(self) -> list[str]:
@@ -32,8 +39,15 @@ class AnomalyDataset(ABC):
     def samples(
         self, category: str, split: Literal["train", "test"] = "test"
     ) -> list[AnomalySample]:
-        """All samples for the given category and split."""
+        """All samples for the given category and split.
+
+        Args:
+            category: One of the strings returned by :meth:`categories`.
+            split: ``"train"`` returns normal-only images used to train
+                classical baselines; ``"test"`` returns the labelled
+                evaluation set (both normal and anomalous).
+        """
 
     @abstractmethod
     def download(self) -> None:
-        """Download the dataset to the configured data directory if missing."""
+        """Download the dataset to ``self.root_dir`` if not already present."""

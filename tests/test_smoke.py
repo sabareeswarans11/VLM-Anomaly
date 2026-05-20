@@ -25,6 +25,7 @@ def test_mock_backend_returns_valid_prediction(mock_backend: MockVLMBackend) -> 
     assert isinstance(pred, AnomalyPrediction)
     assert 0.0 <= pred.confidence <= 1.0
     assert pred.cost_usd == 0.0
+    assert pred.image_path == Path("foo.png")  # traceability field set
 
 
 def test_eval_result_round_trips() -> None:
@@ -44,3 +45,9 @@ def test_experiment_config_defaults() -> None:
     cfg = ExperimentConfig(backend="mock", dataset="mvtec")
     assert cfg.seed == 42
     assert cfg.prompt == "generic.simple"
+    assert cfg.categories is None  # None = run all categories
+
+
+def test_experiment_config_explicit_categories() -> None:
+    cfg = ExperimentConfig(backend="mock", dataset="mvtec", categories=["bottle", "cable"])
+    assert cfg.categories == ["bottle", "cable"]
