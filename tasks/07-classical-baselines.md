@@ -5,7 +5,7 @@ same `EvalResult` shape as the VLM evaluator.
 
 ## Deliverables
 
-- [ ] `evaluators/classical_evaluator.py` — thin Anomalib wrapper, CPU-only
+- [x] `evaluators/classical_evaluator.py` — thin Anomalib wrapper, CPU-only
       by default, accepts model name + category, returns `EvalResult`.
 - [ ] `scripts/run_classical_eval.py` filled in.
 - [ ] `tests/test_classical_evaluator.py` — marked `@pytest.mark.slow`,

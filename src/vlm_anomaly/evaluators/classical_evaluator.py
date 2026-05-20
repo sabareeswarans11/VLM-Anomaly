@@ -1,3 +1,213 @@
-"""Anomalib wrapper for classical baselines. Implemented in task 07."""
+"""Anomalib wrapper for classical anomaly-detection baselines.
+
+Wraps PaDiM, PatchCore, EfficientAD, and STFPM from the Anomalib library
+behind the same ``EvalResult`` schema as the VLM evaluator so both appear
+in one unified leaderboard.
+
+Requires the ``[classical]`` extra::
+
+    uv pip install -e ".[classical]"
+
+All models run on CPU by default (``accelerator="cpu"``).
+Training takes 2–10 minutes per category on a laptop.
+"""
 
 from __future__ import annotations
+
+import json
+import time
+import uuid
+from pathlib import Path
+from typing import Literal
+
+from vlm_anomaly.config import Settings, get_settings
+from vlm_anomaly.logging import get_logger
+from vlm_anomaly.schemas import EvalResult, PerImageResult
+from vlm_anomaly.schemas import AnomalyPrediction
+
+log = get_logger(__name__)
+
+ModelName = Literal["padim", "patchcore", "efficientad", "stfpm"]
+
+_MODEL_NAMES: set[str] = {"padim", "patchcore", "efficientad", "stfpm"}
+
+
+class ClassicalEvaluator:
+    """Run a classical Anomalib baseline and return an ``EvalResult``.
+
+    Args:
+        model_name: One of ``padim``, ``patchcore``, ``efficientad``, ``stfpm``.
+        dataset_name: ``"mvtec"`` or ``"visa"``.
+        category: Dataset category (e.g. ``"bottle"``).
+        image_size: Resize images to this square size before training/eval.
+        settings: App settings; defaults to ``get_settings()``.
+    """
+
+    def __init__(
+        self,
+        model_name: ModelName,
+        dataset_name: Literal["mvtec", "visa"],
+        category: str,
+        image_size: int = 256,
+        settings: Settings | None = None,
+    ) -> None:
+        if model_name not in _MODEL_NAMES:
+            raise ValueError(f"Unknown model {model_name!r}. Valid: {sorted(_MODEL_NAMES)}")
+        self.model_name = model_name
+        self.dataset_name = dataset_name
+        self.category = category
+        self.image_size = image_size
+        self.settings = settings or get_settings()
+        self.experiment_id = str(uuid.uuid4())[:8]
+
+    def run(self) -> EvalResult:
+        """Train and evaluate the model on the given category.
+
+        Returns:
+            ``EvalResult`` with AUROC, F1, precision, recall, and latency.
+
+        Raises:
+            ImportError: If ``anomalib`` is not installed.
+            FileNotFoundError: If the dataset root does not exist.
+        """
+        _check_anomalib()
+
+        from anomalib.engine import Engine
+
+        data_root = self.settings.data_dir
+        model = _build_model(self.model_name)
+        datamodule = _build_datamodule(
+            self.dataset_name, self.category, data_root, self.image_size
+        )
+
+        log.info(
+            "classical.run.start",
+            model=self.model_name,
+            dataset=self.dataset_name,
+            category=self.category,
+            image_size=self.image_size,
+        )
+
+        engine = Engine(accelerator="cpu", devices=1, max_epochs=1)
+
+        t0 = time.perf_counter()
+        engine.fit(model, datamodule=datamodule)
+        results_list = engine.test(model, datamodule=datamodule, verbose=False)
+        elapsed_ms = (time.perf_counter() - t0) * 1000
+
+        eval_result = _parse_anomalib_results(
+            results_list,
+            model_id=self.model_name,
+            dataset=self.dataset_name,
+            category=self.category,
+            elapsed_ms=elapsed_ms,
+        )
+
+        self._flush_result(eval_result)
+
+        log.info(
+            "classical.run.done",
+            model=self.model_name,
+            category=self.category,
+            auroc=eval_result.auroc,
+            f1=eval_result.f1,
+            elapsed_s=round(elapsed_ms / 1000, 1),
+        )
+        return eval_result
+
+    def _flush_result(self, result: EvalResult) -> None:
+        out_dir = self.settings.results_dir
+        out_dir.mkdir(parents=True, exist_ok=True)
+        path = out_dir / f"{self.experiment_id}_{self.dataset_name}_{self.category}_{self.model_name}.json"
+        path.write_text(json.dumps([result.model_dump()], indent=2))
+        log.info("classical.result.written", path=str(path))
+
+
+# ---------------------------------------------------------------------------
+# Anomalib helpers
+# ---------------------------------------------------------------------------
+
+def _check_anomalib() -> None:
+    try:
+        import anomalib  # noqa: F401
+    except ImportError as exc:
+        raise ImportError(
+            "Anomalib is required for classical baselines.\n"
+            "Install it with: uv pip install -e '.[classical]'"
+        ) from exc
+
+
+def _build_model(name: str):
+    if name == "padim":
+        from anomalib.models import Padim
+        return Padim()
+    if name == "patchcore":
+        from anomalib.models import Patchcore
+        return Patchcore()
+    if name == "efficientad":
+        from anomalib.models import EfficientAd
+        return EfficientAd()
+    if name == "stfpm":
+        from anomalib.models import Stfpm
+        return Stfpm()
+    raise ValueError(f"Unknown model: {name!r}")
+
+
+def _build_datamodule(dataset_name: str, category: str, data_root: Path, image_size: int):
+    if dataset_name == "mvtec":
+        from anomalib.data import MVTec
+        return MVTec(
+            root=str(data_root / "mvtec"),
+            category=category,
+            image_size=(image_size, image_size),
+            train_batch_size=32,
+            eval_batch_size=32,
+            num_workers=0,
+        )
+    if dataset_name == "visa":
+        from anomalib.data import Visa
+        return Visa(
+            root=str(data_root / "visa"),
+            category=category,
+            image_size=(image_size, image_size),
+            train_batch_size=32,
+            eval_batch_size=32,
+            num_workers=0,
+        )
+    raise ValueError(f"Unknown dataset: {dataset_name!r}")
+
+
+def _parse_anomalib_results(
+    results_list: list[dict],
+    model_id: str,
+    dataset: str,
+    category: str,
+    elapsed_ms: float,
+) -> EvalResult:
+    """Extract metrics from Anomalib's test() output dict."""
+    metrics: dict = results_list[0] if results_list else {}
+
+    def _get(key: str) -> float | None:
+        # Anomalib prefixes metrics with "test/" or "image_" depending on version
+        for candidate in [key, f"test/{key}", f"image_{key}", f"pixel_{key}"]:
+            val = metrics.get(candidate)
+            if val is not None:
+                try:
+                    return float(val)
+                except (TypeError, ValueError):
+                    pass
+        return None
+
+    return EvalResult(
+        model_id=model_id,
+        backend="anomalib",
+        dataset=dataset,
+        category=category,
+        n_images=int(metrics.get("test/num_samples", metrics.get("num_samples", 0))),
+        auroc=_get("image_AUROC") or _get("AUROC") or _get("auroc"),
+        f1=_get("image_F1Score") or _get("F1Score") or _get("f1"),
+        precision=_get("image_Precision") or _get("Precision"),
+        recall=_get("image_Recall") or _get("Recall"),
+        mean_latency_ms=elapsed_ms,
+        total_cost_usd=0.0,
+    )
