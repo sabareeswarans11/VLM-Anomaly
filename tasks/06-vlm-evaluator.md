@@ -5,13 +5,16 @@ cloud and edge runs.
 
 ## Deliverables
 
-- [ ] `evaluators/prompt_library.py` — loads `prompts/*.yaml`, renders by
-      `name.variant` key, exposes the byte-identical text used by the iOS app.
-- [ ] `utils/json_parsing.py` — full fallback chain per CLAUDE.md §7.3.
-- [ ] `utils/cost_tracker.py` — per-experiment running total + budget abort.
-- [ ] `evaluators/vlm_evaluator.py` — iterates `AnomalyDataset` samples,
-      calls backend, parses, scores, flushes JSON after every image.
-- [ ] `tests/test_vlm_evaluator.py` + `tests/test_json_parsing.py` green.
+- [x] `evaluators/prompt_library.py` — loads `prompts/*.yaml`, renders by
+      `name.variant` key, validates names/variants, used by iOS app too.
+- [x] `utils/json_parsing.py` — full 5-step fallback chain (done in task 04).
+- [x] `utils/cost_tracker.py` — thread-safe CostTracker + BudgetExceeded (done in task 04).
+- [x] `evaluators/base.py` — `compute_eval_result()` with AUROC, F1, precision, recall.
+- [x] `evaluators/vlm_evaluator.py` — iterates samples, checks budget, calls backend,
+      flushes `.jsonl` after every image, returns `EvalResult` per category.
+- [x] `scripts/run_vlm_eval.py` — fully wired CLI with backend/dataset/prompt/limit/budget.
+- [x] `tests/test_vlm_evaluator.py` — 21 tests (prompt library + evaluator + budget). Green.
+- [x] `tests/test_json_parsing.py` — promoted to real tests (done in task 04).
 
 ## Done when
 

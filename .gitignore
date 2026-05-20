@@ -89,6 +89,9 @@ data/mvtec*/
 data/visa*/
 data/infra*/
 
+# Evaluator output (JSONL per-image records written during runs)
+results/*.jsonl
+
 # ── IDE / OS ────────────────────────────────────────────────────────────────
 .idea/
 .vscode/

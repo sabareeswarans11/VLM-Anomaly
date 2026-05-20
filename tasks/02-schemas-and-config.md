@@ -4,13 +4,13 @@ Lock in the shapes the rest of the toolkit depends on.
 
 ## Deliverables
 
-- [ ] `src/vlm_anomaly/schemas.py` finalized: `AnomalyPrediction`, `EvalResult`,
-      `ExperimentConfig`, `Region`. JSON-serializable round-trip tested.
-- [ ] `src/vlm_anomaly/config.py` finalized: `Settings` reading env + `.env`,
-      `get_settings()` helper, path normalization to absolute.
-- [ ] `structlog` configured (console renderer in dev, JSON in prod) and exposed
+- [x] `src/vlm_anomaly/schemas.py` finalized: `AnomalyPrediction`, `EvalResult`,
+      `ExperimentConfig`, `Region`, `PerImageResult`. JSON-serializable round-trip tested.
+- [x] `src/vlm_anomaly/config.py` finalized: `Settings` reading env + `.env`,
+      `get_settings()` helper, path normalization to absolute, `env_ignore_empty=True`.
+- [x] `structlog` configured (console renderer in dev, JSON in prod) and exposed
       via `vlm_anomaly.logging.get_logger`.
-- [ ] Unit tests in `tests/test_schemas.py` and `tests/test_config.py`.
+- [x] Unit tests in `tests/test_schemas.py` and `tests/test_config.py`.
 
 ## Done when
 
