@@ -10,12 +10,11 @@ from vlm_anomaly.backends.mock import MockVLMBackend
 from vlm_anomaly.evaluators.prompt_library import PromptLibrary
 from vlm_anomaly.evaluators.vlm_evaluator import VLMEvaluator
 from vlm_anomaly.schemas import EvalResult, ExperimentConfig
-from vlm_anomaly.utils.cost_tracker import BudgetExceeded
-
 
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
+
 
 def _touch(path: Path, content: bytes = b"PNG") -> Path:
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -48,15 +47,14 @@ def prompt_lib(tmp_path: Path) -> PromptLibrary:
     """Minimal prompt library with a single 'test' name."""
     p = tmp_path / "prompts" / "test.yaml"
     p.parent.mkdir(parents=True)
-    p.write_text(
-        "name: test\nvariants:\n  simple: Is there a defect? Reply JSON.\n"
-    )
+    p.write_text("name: test\nvariants:\n  simple: Is there a defect? Reply JSON.\n")
     return PromptLibrary(prompts_dir=tmp_path / "prompts")
 
 
 @pytest.fixture
 def mvtec_dataset(tiny_mvtec: Path):
     from vlm_anomaly.datasets.mvtec import MVTec
+
     return MVTec(root_dir=tiny_mvtec)
 
 
@@ -75,6 +73,7 @@ def base_config() -> ExperimentConfig:
 # ---------------------------------------------------------------------------
 # PromptLibrary
 # ---------------------------------------------------------------------------
+
 
 class TestPromptLibrary:
     def test_loads_real_prompts_dir(self) -> None:
@@ -139,6 +138,7 @@ class TestPromptLibrary:
 # VLMEvaluator — basic runs
 # ---------------------------------------------------------------------------
 
+
 class TestVLMEvaluator:
     def _make_evaluator(
         self,
@@ -149,6 +149,7 @@ class TestVLMEvaluator:
         results_dir: Path,
     ) -> VLMEvaluator:
         from vlm_anomaly.config import Settings
+
         # Use field names (not env-var names) as constructor kwargs.
         settings = Settings(
             _env_file=str(results_dir / "empty.env"),
@@ -185,12 +186,13 @@ class TestVLMEvaluator:
         results = ev.run()
         assert results[0].n_images == 4
 
-    def test_run_with_limit(
-        self, mock_backend, mvtec_dataset, prompt_lib, tmp_path
-    ) -> None:
+    def test_run_with_limit(self, mock_backend, mvtec_dataset, prompt_lib, tmp_path) -> None:
         config = ExperimentConfig(
-            backend="mock", dataset="mvtec", categories=["bottle"],
-            prompt="test.simple", limit=2,
+            backend="mock",
+            dataset="mvtec",
+            categories=["bottle"],
+            prompt="test.simple",
+            limit=2,
         )
         ev = self._make_evaluator(mock_backend, mvtec_dataset, config, prompt_lib, tmp_path)
         results = ev.run()
@@ -210,6 +212,7 @@ class TestVLMEvaluator:
         self, mock_backend, mvtec_dataset, base_config, prompt_lib, tmp_path
     ) -> None:
         import json
+
         ev = self._make_evaluator(mock_backend, mvtec_dataset, base_config, prompt_lib, tmp_path)
         ev.run()
         for line in list(tmp_path.glob("*.jsonl"))[0].read_text().splitlines():
@@ -248,14 +251,19 @@ class TestVLMEvaluator:
 # Budget enforcement
 # ---------------------------------------------------------------------------
 
+
 class TestVLMEvaluatorBudget:
     def test_respects_budget_zero_stops_immediately(
         self, mock_backend, mvtec_dataset, prompt_lib, tmp_path
     ) -> None:
         from vlm_anomaly.config import Settings
+
         config = ExperimentConfig(
-            backend="mock", dataset="mvtec", categories=["bottle"],
-            prompt="test.simple", budget_usd=100.0,  # high enough for mock
+            backend="mock",
+            dataset="mvtec",
+            categories=["bottle"],
+            prompt="test.simple",
+            budget_usd=100.0,  # high enough for mock
         )
         settings = Settings(
             _env_file=str(tmp_path / "empty.env"),
@@ -266,8 +274,11 @@ class TestVLMEvaluatorBudget:
             results_dir=str(tmp_path),
         )
         ev = VLMEvaluator(
-            backend=mock_backend, dataset=mvtec_dataset,
-            config=config, settings=settings, prompt_library=prompt_lib,
+            backend=mock_backend,
+            dataset=mvtec_dataset,
+            config=config,
+            settings=settings,
+            prompt_library=prompt_lib,
         )
         # Push total past the budget so the very first check_budget fires.
         ev.tracker._total = 100.001

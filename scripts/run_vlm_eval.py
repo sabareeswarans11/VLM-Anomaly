@@ -28,24 +28,31 @@ from vlm_anomaly.schemas import ExperimentConfig
 def _build_backend(name: str):
     if name == "mock":
         from vlm_anomaly.backends.mock import MockVLMBackend
+
         return MockVLMBackend()
     if name == "together":
         from vlm_anomaly.backends.together import TogetherBackend
+
         return TogetherBackend()
     if name == "gemini":
         from vlm_anomaly.backends.gemini import GeminiBackend
+
         return GeminiBackend()
     if name == "anthropic":
         from vlm_anomaly.backends.anthropic_backend import AnthropicBackend
+
         return AnthropicBackend()
     if name == "groq":
         from vlm_anomaly.backends.groq import GroqBackend
+
         return GroqBackend()
     if name == "edge_minicpm_llamacpp":
         from vlm_anomaly.backends.edge.minicpm_llamacpp import MiniCPMLlamaCppBackend
+
         return MiniCPMLlamaCppBackend()
     if name == "edge_minicpm_mlx":
         from vlm_anomaly.backends.edge.minicpm_mlx import MiniCPMMLXBackend
+
         return MiniCPMMLXBackend()
     raise ValueError(f"Unknown backend: {name!r}")
 
@@ -54,12 +61,15 @@ def _build_dataset(name: str, category: str | None):
     settings = get_settings()
     if name == "mvtec":
         from vlm_anomaly.datasets.mvtec import MVTec
+
         return MVTec(root_dir=settings.data_dir / "mvtec")
     if name == "visa":
         from vlm_anomaly.datasets.visa import VisA
+
         return VisA(root_dir=settings.data_dir / "visa")
     if name == "infra":
         from vlm_anomaly.datasets.infra import InfraAD
+
         return InfraAD(root_dir=settings.data_dir / "infra")
     raise ValueError(f"Unknown dataset: {name!r}")
 
@@ -70,21 +80,31 @@ def build_parser() -> argparse.ArgumentParser:
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     parser.add_argument(
-        "--backend", required=True,
-        choices=["mock", "together", "gemini", "anthropic", "groq",
-                 "edge_minicpm_llamacpp", "edge_minicpm_mlx"],
+        "--backend",
+        required=True,
+        choices=[
+            "mock",
+            "together",
+            "gemini",
+            "anthropic",
+            "groq",
+            "edge_minicpm_llamacpp",
+            "edge_minicpm_mlx",
+        ],
     )
     parser.add_argument("--dataset", required=True, choices=["mvtec", "visa", "infra"])
     parser.add_argument(
-        "--category", default=None,
+        "--category",
+        default=None,
         help="Category to evaluate. Omit to run all categories.",
     )
-    parser.add_argument("--prompt", default="generic.simple",
-                        help="Prompt key in format '<name>.<variant>'.")
-    parser.add_argument("--limit", type=int, default=None,
-                        help="Max images per category.")
-    parser.add_argument("--budget", type=float, default=None,
-                        help="Max USD to spend (overrides env default).")
+    parser.add_argument(
+        "--prompt", default="generic.simple", help="Prompt key in format '<name>.<variant>'."
+    )
+    parser.add_argument("--limit", type=int, default=None, help="Max images per category.")
+    parser.add_argument(
+        "--budget", type=float, default=None, help="Max USD to spend (overrides env default)."
+    )
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--log-format", choices=["console", "json"], default="console")
     return parser
@@ -109,6 +129,7 @@ def main(argv: list[str] | None = None) -> int:
     dataset = _build_dataset(args.dataset, args.category)
 
     from vlm_anomaly.evaluators.vlm_evaluator import VLMEvaluator
+
     evaluator = VLMEvaluator(backend=backend, dataset=dataset, config=config)
 
     try:

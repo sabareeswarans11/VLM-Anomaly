@@ -24,10 +24,10 @@ _ANTHROPIC_VERSION = "2023-06-01"
 
 # Per-token prices (USD) — Anthropic list pricing (2026).
 _PRICES: dict[str, tuple[float, float]] = {
-    "claude-opus-4-6":              (0.000015, 0.000075),
-    "claude-opus-4-7":              (0.000015, 0.000075),
-    "claude-sonnet-4-6":            (0.000003, 0.000015),
-    "claude-haiku-4-5-20251001":    (0.0000008, 0.000004),
+    "claude-opus-4-6": (0.000015, 0.000075),
+    "claude-opus-4-7": (0.000015, 0.000075),
+    "claude-sonnet-4-6": (0.000003, 0.000015),
+    "claude-haiku-4-5-20251001": (0.0000008, 0.000004),
 }
 
 
@@ -108,7 +108,12 @@ class AnthropicBackend(VLMBackend):
         cost = tokens_in * self._price_in + tokens_out * self._price_out
 
         data, parse_error = parse_anomaly_prediction_dict(raw)
-        log.debug("anthropic.predict", model=self.model, latency_ms=round(latency_ms), parse_error=parse_error)
+        log.debug(
+            "anthropic.predict",
+            model=self.model,
+            latency_ms=round(latency_ms),
+            parse_error=parse_error,
+        )
 
         return AnomalyPrediction(
             image_path=image,

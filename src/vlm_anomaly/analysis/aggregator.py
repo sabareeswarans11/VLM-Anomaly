@@ -27,6 +27,7 @@ log = get_logger(__name__)
 # Public API
 # ---------------------------------------------------------------------------
 
+
 def leaderboard(results_dir: str | Path) -> pd.DataFrame:
     """Return a ranked leaderboard from all results in ``results_dir``.
 
@@ -60,10 +61,19 @@ def leaderboard(results_dir: str | Path) -> pd.DataFrame:
 
     if not frames:
         log.warning("aggregator.empty", results_dir=str(results_dir))
-        return pd.DataFrame(columns=[
-            "model_id", "backend", "dataset", "category",
-            "n_images", "auroc", "f1", "mean_latency_ms", "total_cost_usd",
-        ])
+        return pd.DataFrame(
+            columns=[
+                "model_id",
+                "backend",
+                "dataset",
+                "category",
+                "n_images",
+                "auroc",
+                "f1",
+                "mean_latency_ms",
+                "total_cost_usd",
+            ]
+        )
 
     combined = pd.concat(frames, ignore_index=True)
     combined = combined.sort_values("auroc", ascending=False, na_position="last")
@@ -82,9 +92,7 @@ def category_heatmap(results_dir: str | Path) -> pd.DataFrame:
     lb = leaderboard(results_dir)
     if lb.empty:
         return pd.DataFrame()
-    return lb.pivot_table(
-        index="model_id", columns="category", values="auroc", aggfunc="mean"
-    )
+    return lb.pivot_table(index="model_id", columns="category", values="auroc", aggfunc="mean")
 
 
 def cost_accuracy_table(results_dir: str | Path) -> pd.DataFrame:
@@ -101,18 +109,26 @@ def cost_accuracy_table(results_dir: str | Path) -> pd.DataFrame:
     if lb.empty:
         return pd.DataFrame()
 
-    agg = lb.groupby("model_id").agg(
-        mean_auroc=("auroc", "mean"),
-        mean_cost_per_image=("total_cost_usd", lambda x: (x / lb.loc[x.index, "n_images"].replace(0, 1)).mean()),
-        mean_latency_ms=("mean_latency_ms", "mean"),
-        backend=("backend", "first"),
-    ).reset_index()
+    agg = (
+        lb.groupby("model_id")
+        .agg(
+            mean_auroc=("auroc", "mean"),
+            mean_cost_per_image=(
+                "total_cost_usd",
+                lambda x: (x / lb.loc[x.index, "n_images"].replace(0, 1)).mean(),
+            ),
+            mean_latency_ms=("mean_latency_ms", "mean"),
+            backend=("backend", "first"),
+        )
+        .reset_index()
+    )
     return agg.sort_values("mean_auroc", ascending=False)
 
 
 # ---------------------------------------------------------------------------
 # Internal helpers
 # ---------------------------------------------------------------------------
+
 
 def _aggregate_jsonl(files: list[Path]) -> pd.DataFrame:
     """Re-aggregate per-image JSONL records using DuckDB."""
@@ -161,9 +177,12 @@ def _aggregate_jsonl(files: list[Path]) -> pd.DataFrame:
     return pd.DataFrame(rows) if rows else pd.DataFrame()
 
 
-def _recompute_metrics_for_group(results_dir: Path, grp: pd.Series) -> tuple[float | None, float | None]:
+def _recompute_metrics_for_group(
+    results_dir: Path, grp: pd.Series
+) -> tuple[float | None, float | None]:
     """Read JSONL for one (model, dataset, category) cell and compute metrics."""
     import json
+
     from vlm_anomaly.evaluators.base import _safe_auroc, _safe_f1
 
     labels, scores, preds = [], [], []
@@ -210,8 +229,17 @@ def _load_precomputed_json(files: list[Path]) -> pd.DataFrame:
 
     df = pd.DataFrame(rows)
     # Keep only columns we care about; tolerate missing columns
-    want = ["model_id", "backend", "dataset", "category", "n_images",
-            "auroc", "f1", "mean_latency_ms", "total_cost_usd"]
+    want = [
+        "model_id",
+        "backend",
+        "dataset",
+        "category",
+        "n_images",
+        "auroc",
+        "f1",
+        "mean_latency_ms",
+        "total_cost_usd",
+    ]
     for col in want:
         if col not in df.columns:
             df[col] = None

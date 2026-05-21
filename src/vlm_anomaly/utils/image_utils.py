@@ -13,7 +13,6 @@ from pathlib import Path
 
 from PIL import Image
 
-
 # Maximum dimension sent to cloud APIs.  Larger images cost more tokens
 # and do not meaningfully improve detection accuracy.
 MAX_SIDE_PX: int = 1024

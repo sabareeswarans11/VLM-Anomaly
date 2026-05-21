@@ -20,24 +20,48 @@ from vlm_anomaly.analysis.statistical_tests import (
     mcnemar_test,
 )
 
-
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
+
 
 @pytest.fixture
 def results_dir_precomputed(tmp_path: Path) -> Path:
     """Pre-aggregated EvalResult JSON (classical baseline style)."""
     data = [
-        {"model_id": "padim", "backend": "anomalib", "dataset": "mvtec",
-         "category": "bottle", "n_images": 83, "auroc": 0.92, "f1": 0.88,
-         "mean_latency_ms": 15.0, "total_cost_usd": 0.0},
-        {"model_id": "patchcore", "backend": "anomalib", "dataset": "mvtec",
-         "category": "bottle", "n_images": 83, "auroc": 0.95, "f1": 0.91,
-         "mean_latency_ms": 25.0, "total_cost_usd": 0.0},
-        {"model_id": "mock-vlm", "backend": "mock", "dataset": "mvtec",
-         "category": "cable", "n_images": 58, "auroc": 0.78, "f1": 0.70,
-         "mean_latency_ms": 1200.0, "total_cost_usd": 0.18},
+        {
+            "model_id": "padim",
+            "backend": "anomalib",
+            "dataset": "mvtec",
+            "category": "bottle",
+            "n_images": 83,
+            "auroc": 0.92,
+            "f1": 0.88,
+            "mean_latency_ms": 15.0,
+            "total_cost_usd": 0.0,
+        },
+        {
+            "model_id": "patchcore",
+            "backend": "anomalib",
+            "dataset": "mvtec",
+            "category": "bottle",
+            "n_images": 83,
+            "auroc": 0.95,
+            "f1": 0.91,
+            "mean_latency_ms": 25.0,
+            "total_cost_usd": 0.0,
+        },
+        {
+            "model_id": "mock-vlm",
+            "backend": "mock",
+            "dataset": "mvtec",
+            "category": "cable",
+            "n_images": 58,
+            "auroc": 0.78,
+            "f1": 0.70,
+            "mean_latency_ms": 1200.0,
+            "total_cost_usd": 0.18,
+        },
     ]
     (tmp_path / "classical.json").write_text(json.dumps(data))
     return tmp_path
@@ -78,6 +102,7 @@ def results_dir_jsonl(tmp_path: Path) -> Path:
 # Aggregator — precomputed JSON
 # ---------------------------------------------------------------------------
 
+
 class TestLeaderboardPrecomputed:
     def test_returns_dataframe(self, results_dir_precomputed: Path) -> None:
         df = leaderboard(results_dir_precomputed)
@@ -115,6 +140,7 @@ class TestLeaderboardPrecomputed:
 # Aggregator — JSONL re-aggregation
 # ---------------------------------------------------------------------------
 
+
 class TestLeaderboardJsonl:
     def test_reads_jsonl(self, results_dir_jsonl: Path) -> None:
         df = leaderboard(results_dir_jsonl)
@@ -133,11 +159,23 @@ class TestLeaderboardJsonl:
 
     def test_sample_fixture_json_skipped(self, tmp_path: Path) -> None:
         # The fixture sample_results.json should be skipped (it has 'sample' in the name)
-        (tmp_path / "sample_results.json").write_text(json.dumps([
-            {"model_id": "x", "backend": "y", "dataset": "z", "category": "w",
-             "n_images": 1, "auroc": 0.5, "f1": 0.5,
-             "mean_latency_ms": 1.0, "total_cost_usd": 0.0}
-        ]))
+        (tmp_path / "sample_results.json").write_text(
+            json.dumps(
+                [
+                    {
+                        "model_id": "x",
+                        "backend": "y",
+                        "dataset": "z",
+                        "category": "w",
+                        "n_images": 1,
+                        "auroc": 0.5,
+                        "f1": 0.5,
+                        "mean_latency_ms": 1.0,
+                        "total_cost_usd": 0.0,
+                    }
+                ]
+            )
+        )
         df = leaderboard(tmp_path)
         assert df.empty  # sample_results.json is excluded
 
@@ -145,6 +183,7 @@ class TestLeaderboardJsonl:
 # ---------------------------------------------------------------------------
 # Statistical tests
 # ---------------------------------------------------------------------------
+
 
 class TestMcNemar:
     def _make_data(self):
@@ -180,7 +219,7 @@ class TestBootstrapCI:
     def _data(self):
         labels = [1, 1, 0, 0] * 10
         scores = [0.9, 0.8, 0.2, 0.1] * 10
-        preds  = [1, 1, 0, 0] * 10
+        preds = [1, 1, 0, 0] * 10
         return labels, scores, preds
 
     def test_auroc_ci_returns_bootstrap_ci(self) -> None:

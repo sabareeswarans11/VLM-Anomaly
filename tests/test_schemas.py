@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import json
-from datetime import datetime, timezone
 from pathlib import Path
 
 import pytest
@@ -16,10 +15,10 @@ from vlm_anomaly.schemas import (
     Region,
 )
 
-
 # ---------------------------------------------------------------------------
 # Region
 # ---------------------------------------------------------------------------
+
 
 class TestRegion:
     def test_valid_bbox(self) -> None:
@@ -43,6 +42,7 @@ class TestRegion:
 # ---------------------------------------------------------------------------
 # AnomalyPrediction
 # ---------------------------------------------------------------------------
+
 
 class TestAnomalyPrediction:
     def test_minimal_construction(self) -> None:
@@ -103,6 +103,7 @@ class TestAnomalyPrediction:
 # PerImageResult
 # ---------------------------------------------------------------------------
 
+
 class TestPerImageResult:
     def _make(self, label: int = 1, is_anomalous: bool = True) -> PerImageResult:
         return PerImageResult(
@@ -150,6 +151,7 @@ class TestPerImageResult:
 # EvalResult
 # ---------------------------------------------------------------------------
 
+
 class TestEvalResult:
     def test_minimal_construction(self) -> None:
         r = EvalResult(model_id="padim", backend="anomalib", dataset="mvtec", category="bottle")
@@ -158,9 +160,7 @@ class TestEvalResult:
 
     def test_metric_bounds(self) -> None:
         with pytest.raises(ValueError):
-            EvalResult(
-                model_id="x", backend="y", dataset="z", category="w", auroc=1.5
-            )
+            EvalResult(model_id="x", backend="y", dataset="z", category="w", auroc=1.5)
 
     def test_json_round_trip(self) -> None:
         r = EvalResult(
@@ -179,6 +179,7 @@ class TestEvalResult:
 # ---------------------------------------------------------------------------
 # ExperimentConfig
 # ---------------------------------------------------------------------------
+
 
 class TestExperimentConfig:
     def test_defaults(self) -> None:

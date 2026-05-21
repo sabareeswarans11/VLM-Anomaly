@@ -6,10 +6,10 @@ only pydantic and stdlib.
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator, model_serializer
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class _BaseSchema(BaseModel):
@@ -30,6 +30,7 @@ class _BaseSchema(BaseModel):
 # Region
 # ---------------------------------------------------------------------------
 
+
 class Region(_BaseSchema):
     """A bounding-box region flagged by a VLM.
 
@@ -42,7 +43,9 @@ class Region(_BaseSchema):
 
     @field_validator("bbox")
     @classmethod
-    def bbox_must_be_valid(cls, v: tuple[float, float, float, float]) -> tuple[float, float, float, float]:
+    def bbox_must_be_valid(
+        cls, v: tuple[float, float, float, float]
+    ) -> tuple[float, float, float, float]:
         x1, y1, x2, y2 = v
         if x2 < x1 or y2 < y1:
             raise ValueError(f"bbox x2/y2 must be >= x1/y1, got {v}")
@@ -52,6 +55,7 @@ class Region(_BaseSchema):
 # ---------------------------------------------------------------------------
 # AnomalyPrediction  — one model call on one image
 # ---------------------------------------------------------------------------
+
 
 class AnomalyPrediction(_BaseSchema):
     """One model's prediction on one image. Backend-agnostic.
@@ -82,6 +86,7 @@ class AnomalyPrediction(_BaseSchema):
 # PerImageResult  — written to results/*.json after each prediction
 # ---------------------------------------------------------------------------
 
+
 class PerImageResult(_BaseSchema):
     """One row persisted to disk after each inference call.
 
@@ -95,9 +100,9 @@ class PerImageResult(_BaseSchema):
     backend: str
     dataset: str
     category: str
-    sample_label: int = Field(ge=0, le=1)        # 0 = normal, 1 = anomaly
+    sample_label: int = Field(ge=0, le=1)  # 0 = normal, 1 = anomaly
     prediction: AnomalyPrediction
-    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
     @property
     def correct(self) -> bool:
@@ -108,6 +113,7 @@ class PerImageResult(_BaseSchema):
 # ---------------------------------------------------------------------------
 # EvalResult  — aggregated metrics for one (model, dataset, category) cell
 # ---------------------------------------------------------------------------
+
 
 class EvalResult(_BaseSchema):
     """Aggregated metrics for one (model, dataset, category) cell.
@@ -135,6 +141,7 @@ class EvalResult(_BaseSchema):
 # ---------------------------------------------------------------------------
 # ExperimentConfig  — inputs for a single evaluation run
 # ---------------------------------------------------------------------------
+
 
 class ExperimentConfig(_BaseSchema):
     """Inputs for a single evaluation run.

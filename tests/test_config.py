@@ -10,10 +10,10 @@ import pytest
 
 from vlm_anomaly.config import Settings, get_settings
 
-
 # ---------------------------------------------------------------------------
 # Settings — defaults
 # ---------------------------------------------------------------------------
+
 
 class TestSettingsDefaults:
     def test_get_settings_works_without_env(self, tmp_path: Path) -> None:
@@ -50,6 +50,7 @@ class TestSettingsDefaults:
 # ---------------------------------------------------------------------------
 # Settings — reading from environment
 # ---------------------------------------------------------------------------
+
 
 class TestSettingsFromEnv:
     def test_together_api_key_read_from_env(self) -> None:
@@ -99,23 +100,28 @@ class TestSettingsFromEnv:
 # Logging module
 # ---------------------------------------------------------------------------
 
+
 class TestLogging:
     def test_get_logger_returns_bound_logger(self) -> None:
+
         from vlm_anomaly.logging import get_logger
-        import structlog
+
         log = get_logger("test.module")
         assert log is not None
 
     def test_configure_logging_console(self) -> None:
         from vlm_anomaly.logging import configure_logging
+
         configure_logging(json_logs=False, log_level="WARNING")
 
     def test_configure_logging_json(self) -> None:
         from vlm_anomaly.logging import configure_logging
+
         configure_logging(json_logs=True, log_level="ERROR")
 
     def test_logger_emits_without_error(self, capsys: pytest.CaptureFixture) -> None:
         from vlm_anomaly.logging import configure_logging, get_logger
+
         configure_logging(json_logs=False, log_level="DEBUG")
         log = get_logger("test")
         log.debug("hello", key="value")

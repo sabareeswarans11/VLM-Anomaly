@@ -29,9 +29,7 @@ def compute_eval_result(
         when all labels are the same class).
     """
     if not rows:
-        return EvalResult(
-            model_id=model_id, backend=backend, dataset=dataset, category=category
-        )
+        return EvalResult(model_id=model_id, backend=backend, dataset=dataset, category=category)
 
     labels = [r.sample_label for r in rows]
     scores = [r.prediction.confidence for r in rows]
@@ -58,6 +56,7 @@ def compute_eval_result(
 def _safe_auroc(labels: list[int], scores: list[float]) -> float | None:
     try:
         from sklearn.metrics import roc_auc_score
+
         if len(set(labels)) < 2:
             return None  # only one class — AUROC undefined
         return float(roc_auc_score(labels, scores))
@@ -70,6 +69,7 @@ def _safe_f1(
 ) -> tuple[float | None, float | None, float | None]:
     try:
         from sklearn.metrics import f1_score, precision_score, recall_score
+
         kw = {"zero_division": 0}
         return (
             float(f1_score(labels, preds, **kw)),

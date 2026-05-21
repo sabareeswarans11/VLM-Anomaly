@@ -8,7 +8,7 @@ Usage::
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 import pandas as pd
@@ -54,13 +54,13 @@ def generate(results_dir: str | Path, report_path: str | Path) -> Path:
     pivot = category_heatmap(results_dir)
     cost_df = cost_accuracy_table(results_dir)
 
-    # Generate plots
-    png_bar = svg_bar = png_scatter = svg_scatter = png_heat = svg_heat = None
+    # Generate plots (SVGs are produced as a side effect; only PNGs embedded in report)
+    png_bar = png_scatter = png_heat = None
     if not lb.empty:
-        png_bar, svg_bar = auroc_bar_chart(lb, plots_dir)
-        png_scatter, svg_scatter = cost_vs_accuracy_scatter(lb, plots_dir)
+        png_bar, _ = auroc_bar_chart(lb, plots_dir)
+        png_scatter, _ = cost_vs_accuracy_scatter(lb, plots_dir)
     if not pivot.empty:
-        png_heat, svg_heat = category_heatmap_plot(pivot, plots_dir)
+        png_heat, _ = category_heatmap_plot(pivot, plots_dir)
 
     # Write React explorer payload
     if not lb.empty and not pivot.empty:
@@ -79,6 +79,7 @@ def generate(results_dir: str | Path, report_path: str | Path) -> Path:
 # Markdown builder
 # ---------------------------------------------------------------------------
 
+
 def _build_markdown(
     lb: pd.DataFrame,
     cost_df: pd.DataFrame,
@@ -87,7 +88,7 @@ def _build_markdown(
     png_scatter: Path | None,
     png_heat: Path | None,
 ) -> str:
-    ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+    ts = datetime.now(UTC).strftime("%Y-%m-%d %H:%M UTC")
     sections: list[str] = []
 
     sections.append(f"# VLM-Anomaly Benchmark Report\n\n_Generated: {ts}_\n")
@@ -98,25 +99,51 @@ def _build_markdown(
     if lb.empty:
         sections.append("_No results yet. Run an evaluation first._\n")
     else:
-        sections.append(_df_to_md(lb[[
-            "model_id", "backend", "dataset", "category",
-            "n_images", "auroc", "f1", "mean_latency_ms", "total_cost_usd",
-        ]].rename(columns={
-            "model_id": "Model", "backend": "Backend", "dataset": "Dataset",
-            "category": "Category", "n_images": "N",
-            "auroc": "AUROC", "f1": "F1",
-            "mean_latency_ms": "Latency (ms)", "total_cost_usd": "Cost (USD)",
-        })))
+        sections.append(
+            _df_to_md(
+                lb[
+                    [
+                        "model_id",
+                        "backend",
+                        "dataset",
+                        "category",
+                        "n_images",
+                        "auroc",
+                        "f1",
+                        "mean_latency_ms",
+                        "total_cost_usd",
+                    ]
+                ].rename(
+                    columns={
+                        "model_id": "Model",
+                        "backend": "Backend",
+                        "dataset": "Dataset",
+                        "category": "Category",
+                        "n_images": "N",
+                        "auroc": "AUROC",
+                        "f1": "F1",
+                        "mean_latency_ms": "Latency (ms)",
+                        "total_cost_usd": "Cost (USD)",
+                    }
+                )
+            )
+        )
 
     # Cost vs accuracy
     if not cost_df.empty:
         sections.append("## Cost vs Accuracy Summary\n")
-        sections.append(_df_to_md(cost_df.rename(columns={
-            "model_id": "Model",
-            "mean_auroc": "Mean AUROC",
-            "mean_cost_per_image": "Cost/Image (USD)",
-            "mean_latency_ms": "Latency (ms)",
-        })))
+        sections.append(
+            _df_to_md(
+                cost_df.rename(
+                    columns={
+                        "model_id": "Model",
+                        "mean_auroc": "Mean AUROC",
+                        "mean_cost_per_image": "Cost/Image (USD)",
+                        "mean_latency_ms": "Latency (ms)",
+                    }
+                )
+            )
+        )
 
     # Plots
     sections.append("## Plots\n")

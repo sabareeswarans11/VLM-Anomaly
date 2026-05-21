@@ -22,8 +22,7 @@ from typing import Literal
 
 from vlm_anomaly.config import Settings, get_settings
 from vlm_anomaly.logging import get_logger
-from vlm_anomaly.schemas import EvalResult, PerImageResult
-from vlm_anomaly.schemas import AnomalyPrediction
+from vlm_anomaly.schemas import EvalResult
 
 log = get_logger(__name__)
 
@@ -76,9 +75,7 @@ class ClassicalEvaluator:
 
         data_root = self.settings.data_dir
         model = _build_model(self.model_name)
-        datamodule = _build_datamodule(
-            self.dataset_name, self.category, data_root, self.image_size
-        )
+        datamodule = _build_datamodule(self.dataset_name, self.category, data_root, self.image_size)
 
         log.info(
             "classical.run.start",
@@ -118,7 +115,10 @@ class ClassicalEvaluator:
     def _flush_result(self, result: EvalResult) -> None:
         out_dir = self.settings.results_dir
         out_dir.mkdir(parents=True, exist_ok=True)
-        path = out_dir / f"{self.experiment_id}_{self.dataset_name}_{self.category}_{self.model_name}.json"
+        path = (
+            out_dir
+            / f"{self.experiment_id}_{self.dataset_name}_{self.category}_{self.model_name}.json"
+        )
         path.write_text(json.dumps([result.model_dump()], indent=2))
         log.info("classical.result.written", path=str(path))
 
@@ -126,6 +126,7 @@ class ClassicalEvaluator:
 # ---------------------------------------------------------------------------
 # Anomalib helpers
 # ---------------------------------------------------------------------------
+
 
 def _check_anomalib() -> None:
     try:
@@ -140,15 +141,19 @@ def _check_anomalib() -> None:
 def _build_model(name: str):
     if name == "padim":
         from anomalib.models import Padim
+
         return Padim()
     if name == "patchcore":
         from anomalib.models import Patchcore
+
         return Patchcore()
     if name == "efficientad":
         from anomalib.models import EfficientAd
+
         return EfficientAd()
     if name == "stfpm":
         from anomalib.models import Stfpm
+
         return Stfpm()
     raise ValueError(f"Unknown model: {name!r}")
 
@@ -156,6 +161,7 @@ def _build_model(name: str):
 def _build_datamodule(dataset_name: str, category: str, data_root: Path, image_size: int):
     if dataset_name == "mvtec":
         from anomalib.data import MVTec
+
         return MVTec(
             root=str(data_root / "mvtec"),
             category=category,
@@ -166,6 +172,7 @@ def _build_datamodule(dataset_name: str, category: str, data_root: Path, image_s
         )
     if dataset_name == "visa":
         from anomalib.data import Visa
+
         return Visa(
             root=str(data_root / "visa"),
             category=category,

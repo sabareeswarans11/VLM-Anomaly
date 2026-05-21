@@ -16,10 +16,10 @@ from vlm_anomaly.datasets.mvtec import MVTec
 from vlm_anomaly.datasets.visa import CATEGORIES as VISA_CATEGORIES
 from vlm_anomaly.datasets.visa import VisA
 
-
 # ---------------------------------------------------------------------------
 # Fixtures — synthetic on-disk trees
 # ---------------------------------------------------------------------------
+
 
 def _touch(path: Path) -> Path:
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -102,6 +102,7 @@ def infra_root(tmp_path: Path) -> Path:
 # MVTec
 # ---------------------------------------------------------------------------
 
+
 class TestMVTec:
     def test_categories_requires_no_disk(self) -> None:
         ds = MVTec(root_dir="/nonexistent/path")
@@ -175,10 +176,39 @@ class TestMVTec:
         ds = MVTec(root_dir=mvtec_root)
         assert ds.root_dir.is_absolute()
 
+    def test_download_skips_when_all_present(self, mvtec_root: Path) -> None:
+        """download() should log-and-return when all 15 category dirs exist."""
+        from unittest.mock import patch
+
+        from vlm_anomaly.datasets import mvtec as mvtec_mod
+
+        # Create stub dirs for all 15 categories
+        for cat in mvtec_mod.CATEGORIES:
+            (mvtec_root / cat).mkdir(exist_ok=True)
+        ds = MVTec(root_dir=mvtec_root)
+        # Should return without touching network
+        with patch("urllib.request.urlretrieve") as mock_dl:
+            ds.download()
+            mock_dl.assert_not_called()
+
+    def test_default_root_uses_settings(self) -> None:
+        from unittest.mock import patch
+
+        from vlm_anomaly.config import Settings
+
+        with patch("vlm_anomaly.datasets.mvtec.get_settings") as mock_s:
+            mock_s.return_value = Settings(
+                _env_file="/nonexistent",
+                data_dir="/tmp/mydata",
+            )
+            ds = MVTec()
+        assert "mydata" in str(ds.root_dir)
+
 
 # ---------------------------------------------------------------------------
 # VisA — MVTec-style layout
 # ---------------------------------------------------------------------------
+
 
 class TestVisAMvtecStyle:
     def test_categories_requires_no_disk(self) -> None:
@@ -221,6 +251,7 @@ class TestVisAMvtecStyle:
 # VisA — raw layout
 # ---------------------------------------------------------------------------
 
+
 class TestVisARawLayout:
     def test_train_samples_from_raw(self, visa_root_raw: Path) -> None:
         ds = VisA(root_dir=visa_root_raw)
@@ -244,6 +275,7 @@ class TestVisARawLayout:
 # ---------------------------------------------------------------------------
 # InfraAD
 # ---------------------------------------------------------------------------
+
 
 class TestInfraAD:
     def test_categories_empty_when_root_missing(self, tmp_path: Path) -> None:

@@ -132,6 +132,7 @@ class VisA(AnomalyDataset):
 # Layout detection
 # ------------------------------------------------------------------
 
+
 def _detect_layout(cat_dir: Path) -> Literal["mvtec", "raw"]:
     """Return ``'mvtec'`` if the MVTec-style layout is present, else ``'raw'``."""
     if (cat_dir / "train").exists() or (cat_dir / "test").exists():
@@ -142,6 +143,7 @@ def _detect_layout(cat_dir: Path) -> Literal["mvtec", "raw"]:
 # ------------------------------------------------------------------
 # MVTec-style helpers
 # ------------------------------------------------------------------
+
 
 def _mvtec_style_samples(
     cat_dir: Path, category: str, split: Literal["train", "test"]
@@ -185,6 +187,7 @@ def _mvtec_style_samples(
 # Raw VisA helpers
 # ------------------------------------------------------------------
 
+
 def _raw_visa_samples(
     cat_dir: Path, category: str, split: Literal["train", "test"]
 ) -> list[AnomalySample]:
@@ -219,5 +222,9 @@ def _raw_visa_samples(
 
 def _glob_images(directory: Path) -> list[Path]:
     """Return sorted PNG and JPG images in ``directory``."""
-    imgs = list(directory.glob("*.png")) + list(directory.glob("*.jpg")) + list(directory.glob("*.JPG"))
+    imgs = (
+        list(directory.glob("*.png"))
+        + list(directory.glob("*.jpg"))
+        + list(directory.glob("*.JPG"))
+    )
     return sorted(imgs)

@@ -70,8 +70,7 @@ class PromptLibrary:
         variants = self._prompts[name]
         if variant not in variants:
             raise ValueError(
-                f"Variant {variant!r} not found in {name!r}. "
-                f"Available variants: {sorted(variants)}"
+                f"Variant {variant!r} not found in {name!r}. Available variants: {sorted(variants)}"
             )
         return variants[variant].rstrip()
 

@@ -120,7 +120,7 @@ class MVTec(AnomalyDataset):
 
         if not archive.exists():
             log.info("mvtec.download.start", url=_MVTEC_URL, dest=str(archive))
-            urllib.request.urlretrieve(_MVTEC_URL, archive)  # noqa: S310
+            urllib.request.urlretrieve(_MVTEC_URL, archive)
 
         log.info("mvtec.download.verify", path=str(archive))
         _verify_sha256(archive, _MVTEC_SHA256)
@@ -183,7 +183,4 @@ def _verify_sha256(path: Path, expected: str) -> None:
             h.update(chunk)
     digest = h.hexdigest()
     if digest != expected:
-        raise ValueError(
-            f"SHA-256 mismatch for {path.name}: "
-            f"expected {expected}, got {digest}"
-        )
+        raise ValueError(f"SHA-256 mismatch for {path.name}: expected {expected}, got {digest}")

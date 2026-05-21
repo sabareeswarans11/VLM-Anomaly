@@ -13,8 +13,6 @@ The evaluator:
 
 from __future__ import annotations
 
-import json
-import time
 import uuid
 from pathlib import Path
 
@@ -140,7 +138,6 @@ class VLMEvaluator:
                 log.warning("evaluator.budget_exceeded", category=category, detail=str(exc))
                 break
 
-            t0 = time.perf_counter()
             try:
                 prediction = self.backend.predict(sample.image_path, prompt_text)
             except Exception as exc:

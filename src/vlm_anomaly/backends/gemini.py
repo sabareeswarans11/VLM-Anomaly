@@ -24,10 +24,10 @@ _API_BASE = "https://generativelanguage.googleapis.com/v1beta/models"
 
 # Approximate per-token prices (USD) for Gemini 3 Flash and Pro (2026).
 _PRICES: dict[str, tuple[float, float]] = {
-    "gemini-3-flash":  (0.00000010, 0.00000040),   # $0.10 / $0.40 per 1M
-    "gemini-3-pro":    (0.00000125, 0.00000500),    # $1.25 / $5.00 per 1M
+    "gemini-3-flash": (0.00000010, 0.00000040),  # $0.10 / $0.40 per 1M
+    "gemini-3-pro": (0.00000125, 0.00000500),  # $1.25 / $5.00 per 1M
     "gemini-2.5-flash-preview-05-20": (0.00000010, 0.00000040),
-    "gemini-2.5-pro-preview-05-06":   (0.00000125, 0.00000500),
+    "gemini-2.5-pro-preview-05-06": (0.00000125, 0.00000500),
 }
 
 
@@ -93,7 +93,12 @@ class GeminiBackend(VLMBackend):
         cost = tokens_in * self._price_in + tokens_out * self._price_out
 
         data, parse_error = parse_anomaly_prediction_dict(raw)
-        log.debug("gemini.predict", model=self.model, latency_ms=round(latency_ms), parse_error=parse_error)
+        log.debug(
+            "gemini.predict",
+            model=self.model,
+            latency_ms=round(latency_ms),
+            parse_error=parse_error,
+        )
 
         return AnomalyPrediction(
             image_path=image,

@@ -65,8 +65,8 @@ def mcnemar_test(
         raise ValueError("labels, preds_a, preds_b must all have the same length")
 
     # Contingency: cases where only one model is correct
-    b = sum(1 for l, a, b in zip(labels, preds_a, preds_b) if (a == l) and (b != l))
-    c = sum(1 for l, a, b in zip(labels, preds_a, preds_b) if (a != l) and (b == l))
+    b = sum(1 for gt, a, pb in zip(labels, preds_a, preds_b) if (a == gt) and (pb != gt))
+    c = sum(1 for gt, a, pb in zip(labels, preds_a, preds_b) if (a != gt) and (pb == gt))
 
     if b + c == 0:
         return McNemarResult(model_a, model_b, 0.0, 1.0, False)
@@ -96,7 +96,6 @@ def bootstrap_auroc_ci(
     Returns:
         :class:`BootstrapCI` with estimate and CI bounds.
     """
-    from sklearn.metrics import roc_auc_score
 
     rng = random.Random(seed)
     n = len(labels)
@@ -169,6 +168,7 @@ def bootstrap_f1_ci(
 
 def _safe_roc_auc(labels: list[int], scores: list[float]) -> float | None:
     from sklearn.metrics import roc_auc_score
+
     try:
         if len(set(labels)) < 2:
             return None

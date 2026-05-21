@@ -110,7 +110,11 @@ def parse_anomaly_prediction_dict(text: str) -> tuple[dict[str, Any], bool]:
     # confidence
     raw_conf = data.get("confidence")
     try:
-        conf = float(raw_conf) if raw_conf is not None else (1.0 if normalised["is_anomalous"] else 0.0)
+        conf = (
+            float(raw_conf)
+            if raw_conf is not None
+            else (1.0 if normalised["is_anomalous"] else 0.0)
+        )
         normalised["confidence"] = max(0.0, min(1.0, conf))
     except (TypeError, ValueError):
         normalised["confidence"] = 1.0 if normalised["is_anomalous"] else 0.0
@@ -131,6 +135,7 @@ def parse_anomaly_prediction_dict(text: str) -> tuple[dict[str, Any], bool]:
 # ---------------------------------------------------------------------------
 # Internal helpers
 # ---------------------------------------------------------------------------
+
 
 def _extract_balanced_braces(text: str) -> str:
     """Return the substring spanning the first balanced ``{…}`` block."""

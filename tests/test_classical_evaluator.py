@@ -7,7 +7,7 @@ The @slow integration test requires the [classical] extra + MVTec data.
 from __future__ import annotations
 
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pytest
 
@@ -25,6 +25,7 @@ class TestClassicalEvaluatorUnit:
 
     def test_missing_anomalib_raises_import_error(self, tmp_path: Path) -> None:
         from vlm_anomaly.config import Settings
+
         settings = Settings(_env_file=str(tmp_path / "e.env"), results_dir=str(tmp_path))
         ev = ClassicalEvaluator("padim", "mvtec", "bottle", settings=settings)
         with patch.dict("sys.modules", {"anomalib": None}):
@@ -55,13 +56,20 @@ class TestClassicalEvaluatorUnit:
         assert r.total_cost_usd == 0.0
 
     def test_flush_writes_json(self, tmp_path: Path) -> None:
-        from vlm_anomaly.config import Settings
         import json
+
+        from vlm_anomaly.config import Settings
+
         settings = Settings(_env_file=str(tmp_path / "e.env"), results_dir=str(tmp_path))
         ev = ClassicalEvaluator("padim", "mvtec", "bottle", settings=settings)
         result = EvalResult(
-            model_id="padim", backend="anomalib", dataset="mvtec",
-            category="bottle", auroc=0.92, f1=0.88, n_images=83,
+            model_id="padim",
+            backend="anomalib",
+            dataset="mvtec",
+            category="bottle",
+            auroc=0.92,
+            f1=0.88,
+            n_images=83,
         )
         ev._flush_result(result)
         files = list(tmp_path.glob("*.json"))
@@ -79,6 +87,7 @@ def test_padim_trains_and_evaluates() -> None:
         pytest.skip("anomalib not installed — run: uv pip install -e '.[classical]'")
 
     from vlm_anomaly.config import get_settings
+
     settings = get_settings()
     data_dir = settings.data_dir / "mvtec" / "bottle"
     if not data_dir.exists():

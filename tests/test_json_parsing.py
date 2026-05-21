@@ -6,7 +6,7 @@ the backend contract tests where they get richer fixture context.
 
 from __future__ import annotations
 
-from vlm_anomaly.utils.json_parsing import extract_json, parse_anomaly_prediction_dict
+from vlm_anomaly.utils.json_parsing import extract_json
 
 
 def test_extracts_balanced_json_from_messy_response() -> None:

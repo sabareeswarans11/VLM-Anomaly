@@ -59,8 +59,7 @@ class InfraAD(AnomalyDataset):
         if not self.root_dir.exists():
             return []
         return sorted(
-            d.name for d in self.root_dir.iterdir()
-            if d.is_dir() and not d.name.startswith(".")
+            d.name for d in self.root_dir.iterdir() if d.is_dir() and not d.name.startswith(".")
         )
 
     def samples(

@@ -116,11 +116,20 @@ ignore = [
     "E501",    # line length handled by formatter
     "PLR0913", # too many arguments
     "PLR2004", # magic value comparison
+    "RUF001",  # allow × in narrative strings (benchmark tables)
+    "RUF002",  # allow × and – in docstrings (benchmark tables)
+    "N818",    # BudgetExceeded is intentional (not an Error subclass)
+    "B905",    # zip without strict= — acceptable in analysis code
 ]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/**/*.py" = ["PLR2004", "S101", "TID252"]
-"scripts/**/*.py" = ["T201"]  # allow print() in scripts
+"tests/**/*.py" = ["PLR2004", "S101", "TID252", "PT011", "PT018", "RUF015", "PLC0415", "SIM117", "RUF043", "F841"]
+"scripts/**/*.py" = ["T201", "PLC0415", "PLR0911"]  # scripts use lazy imports + many returns
+"src/vlm_anomaly/evaluators/classical_evaluator.py" = ["PLC0415"]  # lazy anomalib imports
+"src/vlm_anomaly/evaluators/base.py" = ["PLC0415"]
+"src/vlm_anomaly/analysis/aggregator.py" = ["PLC0415"]
+"src/vlm_anomaly/analysis/statistical_tests.py" = ["PLC0415"]
+"src/vlm_anomaly/visualization/plots.py" = ["PLC0415"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["vlm_anomaly"]

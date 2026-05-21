@@ -23,7 +23,7 @@ log = get_logger(__name__)
 _API_URL = "https://api.together.xyz/v1/chat/completions"
 
 # Approximate per-token prices (USD) for Qwen3-VL on Together.ai (2026).
-_PRICE_IN_PER_TOKEN = 0.00000018   # $0.18 / 1M tokens
+_PRICE_IN_PER_TOKEN = 0.00000018  # $0.18 / 1M tokens
 _PRICE_OUT_PER_TOKEN = 0.00000018
 
 
@@ -90,7 +90,12 @@ class TogetherBackend(VLMBackend):
         cost = tokens_in * _PRICE_IN_PER_TOKEN + tokens_out * _PRICE_OUT_PER_TOKEN
 
         data, parse_error = parse_anomaly_prediction_dict(raw)
-        log.debug("together.predict", model=self.model, latency_ms=round(latency_ms), parse_error=parse_error)
+        log.debug(
+            "together.predict",
+            model=self.model,
+            latency_ms=round(latency_ms),
+            parse_error=parse_error,
+        )
 
         return AnomalyPrediction(
             image_path=image,

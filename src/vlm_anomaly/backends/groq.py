@@ -49,7 +49,9 @@ class GroqBackend(VLMBackend):
         return self._run(self._async_predict(image, prompt))
 
     # Groq free tier: longer back-off on 429s
-    @retry(stop=stop_after_attempt(4), wait=wait_exponential(multiplier=2, min=5, max=60), reraise=True)
+    @retry(
+        stop=stop_after_attempt(4), wait=wait_exponential(multiplier=2, min=5, max=60), reraise=True
+    )
     async def _async_predict(self, image: Path, prompt: str) -> AnomalyPrediction:
         if not self.api_key:
             raise ValueError("GROQ_API_KEY is not set.")
@@ -87,7 +89,9 @@ class GroqBackend(VLMBackend):
         tokens_out = usage.get("completion_tokens", 0)
 
         data, parse_error = parse_anomaly_prediction_dict(raw)
-        log.debug("groq.predict", model=self.model, latency_ms=round(latency_ms), parse_error=parse_error)
+        log.debug(
+            "groq.predict", model=self.model, latency_ms=round(latency_ms), parse_error=parse_error
+        )
 
         return AnomalyPrediction(
             image_path=image,

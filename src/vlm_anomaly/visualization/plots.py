@@ -8,6 +8,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import matplotlib
+
 matplotlib.use("Agg")  # non-interactive backend — safe for scripts and tests
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -51,17 +52,15 @@ def auroc_bar_chart(df: pd.DataFrame, out_dir: Path) -> tuple[Path, Path]:
     Returns:
         ``(png_path, svg_path)``
     """
-    agg = (
-        df.groupby("model_id")["auroc"]
-        .mean()
-        .dropna()
-        .sort_values(ascending=True)
-    )
+    agg = df.groupby("model_id")["auroc"].mean().dropna().sort_values(ascending=True)
 
     fig, ax = plt.subplots(figsize=_FIGSIZE_BAR)
-    colors = ["#2196F3" if "anomalib" not in str(df[df["model_id"] == m]["backend"].iloc[0])
-              else "#4CAF50"
-              for m in agg.index]
+    colors = [
+        "#2196F3"
+        if "anomalib" not in str(df[df["model_id"] == m]["backend"].iloc[0])
+        else "#4CAF50"
+        for m in agg.index
+    ]
     bars = ax.barh(agg.index, agg.values, color=colors)
     ax.bar_label(bars, fmt="%.3f", padding=3, fontsize=9)
     ax.set_xlabel("Mean AUROC")
@@ -71,6 +70,7 @@ def auroc_bar_chart(df: pd.DataFrame, out_dir: Path) -> tuple[Path, Path]:
 
     # Legend
     from matplotlib.patches import Patch
+
     legend = [
         Patch(color="#4CAF50", label="Classical (Anomalib)"),
         Patch(color="#2196F3", label="VLM (zero-shot)"),
@@ -90,13 +90,19 @@ def cost_vs_accuracy_scatter(df: pd.DataFrame, out_dir: Path) -> tuple[Path, Pat
     Returns:
         ``(png_path, svg_path)``
     """
-    agg = df.groupby("model_id").agg(
-        auroc=("auroc", "mean"),
-        cost_per_image=("total_cost_usd", lambda x: (
-            x / df.loc[x.index, "n_images"].replace(0, 1)
-        ).mean()),
-        backend=("backend", "first"),
-    ).dropna(subset=["auroc"]).reset_index()
+    agg = (
+        df.groupby("model_id")
+        .agg(
+            auroc=("auroc", "mean"),
+            cost_per_image=(
+                "total_cost_usd",
+                lambda x: (x / df.loc[x.index, "n_images"].replace(0, 1)).mean(),
+            ),
+            backend=("backend", "first"),
+        )
+        .dropna(subset=["auroc"])
+        .reset_index()
+    )
 
     fig, ax = plt.subplots(figsize=_FIGSIZE_SCATTER)
     for _, row in agg.iterrows():
@@ -105,7 +111,9 @@ def cost_vs_accuracy_scatter(df: pd.DataFrame, out_dir: Path) -> tuple[Path, Pat
         ax.annotate(
             row["model_id"],
             (row["cost_per_image"], row["auroc"]),
-            textcoords="offset points", xytext=(6, 3), fontsize=8,
+            textcoords="offset points",
+            xytext=(6, 3),
+            fontsize=8,
         )
 
     ax.set_xlabel("Cost per Image (USD)")

@@ -8,7 +8,6 @@ import pytest
 
 from vlm_anomaly.backends.mock import MockVLMBackend
 
-
 FIXTURES_DIR = Path(__file__).parent / "fixtures"
 
 

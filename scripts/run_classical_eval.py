@@ -19,7 +19,9 @@ def build_parser() -> argparse.ArgumentParser:
         description="Train and evaluate a classical Anomalib baseline.",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
-    parser.add_argument("--model", required=True, choices=["padim", "patchcore", "efficientad", "stfpm"])
+    parser.add_argument(
+        "--model", required=True, choices=["padim", "patchcore", "efficientad", "stfpm"]
+    )
     parser.add_argument("--dataset", required=True, choices=["mvtec", "visa"])
     parser.add_argument("--category", required=True)
     parser.add_argument("--image-size", type=int, default=256)
@@ -55,12 +57,14 @@ def main(argv: list[str] | None = None) -> int:
 
     print(
         f"\n{args.model.upper():12s}  {args.dataset}/{args.category}\n"
-        f"  AUROC     : {result.auroc:.4f}" if result.auroc is not None else "  AUROC     : N/A"
+        f"  AUROC     : {result.auroc:.4f}"
+        if result.auroc is not None
+        else "  AUROC     : N/A"
     )
     if result.f1 is not None:
         print(f"  F1        : {result.f1:.4f}")
-    print(f"  Latency   : {result.mean_latency_ms/1000:.1f}s")
-    print(f"  Cost      : $0.00 (on-device)")
+    print(f"  Latency   : {result.mean_latency_ms / 1000:.1f}s")
+    print("  Cost      : $0.00 (on-device)")
     return 0
 
 
