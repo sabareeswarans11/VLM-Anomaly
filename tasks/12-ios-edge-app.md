@@ -5,16 +5,16 @@ iPhone 16 Pro Max benchmark numbers from §1.
 
 ## Deliverables
 
-- [ ] Xcode project under `ios/VLMAnomalyEdge/` (iOS 17+, Xcode 16+).
-- [ ] `MiniCPMRunner.swift` — wraps llama.cpp (primary) or mlx-swift.
-- [ ] `PromptBuilder.swift` — loads the bundled copy of `prompts/*.yaml`,
+- [x] Xcode project under `ios/VLMAnomalyEdge/` (iOS 17+, Xcode 16+).
+- [x] `MiniCPMRunner.swift` — wraps llama.cpp (primary) or mlx-swift.
+- [x] `PromptBuilder.swift` — loads the bundled copy of `prompts/*.yaml`,
       byte-identical to the Python toolkit.
-- [ ] `AnomalyResponseParser.swift` — behaviour parity with the Python
+- [x] `AnomalyResponseParser.swift` — behaviour parity with the Python
       `utils/json_parsing.py` (golden test files in both).
-- [ ] `CaptureView` → `ResultView` → `BenchmarkView` user flow.
-- [ ] `BenchmarkView` records first-token ms, tok/s, peak MB into a local
+- [x] `CaptureView` → `ResultView` → `BenchmarkView` user flow.
+- [x] `BenchmarkView` records first-token ms, tok/s, peak MB into a local
       SQLite store the user can inspect.
-- [ ] Airplane-mode test: app fully functional with the radio off.
+- [x] Airplane-mode test: app fully functional with the radio off.
 
 ## Done when
 

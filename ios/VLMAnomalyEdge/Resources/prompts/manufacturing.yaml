@@ -1,0 +1,21 @@
+name: manufacturing
+description: >
+  MVTec / VisA style manufactured-object inspection. Emphasizes surface
+  defects on rigid parts.
+variants:
+  simple: |
+    This image shows a manufactured part. Is it defective? Reply with JSON:
+    {"is_anomalous": bool, "confidence": float, "description": str, "defect_type": str}
+  detailed: |
+    You are a quality inspector on a manufacturing line.
+    This image shows a single manufactured part on a controlled background.
+    Common defects to look for: cracks, scratches, dents, chips, contamination,
+    discoloration, missing components, misalignment, broken edges.
+    Reply with a single JSON object only:
+    {
+      "is_anomalous": bool,
+      "confidence": float between 0 and 1,
+      "description": one short sentence,
+      "defect_type": one of [crack, scratch, dent, chip, contamination, discoloration, missing, misaligned, broken, other, none],
+      "regions": [{"bbox": [x1, y1, x2, y2], "label": str}]
+    }

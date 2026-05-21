@@ -5,12 +5,12 @@ your pocket?"*
 
 ## Deliverables
 
-- [ ] README.md polished: hook, results table from CLAUDE.md §13.1,
+- [x] README.md polished: hook, results table from CLAUDE.md §13.1,
       iPhone benchmark plot, the §13.2 punchline blurb, quickstart, and
       a roadmap to the open tasks.
-- [ ] `paper/` directory with a 4–6 page arXiv-style write-up.
-- [ ] Per-figure caption ties back to the JSON files in `results/`.
-- [ ] Reproduction script: one command regenerates every figure and
+- [x] `paper/` directory with a 4–6 page arXiv-style write-up.
+- [x] Per-figure caption ties back to the JSON files in `results/`.
+- [x] Reproduction script: one command regenerates every figure and
       every number in the paper from `results/*.json`.
 
 ## Done when

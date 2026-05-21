@@ -1,0 +1,24 @@
+name: generic
+description: >
+  General-purpose anomaly inspection prompt. Works on any image.
+variants:
+  simple: |
+    Is there any defect or anomaly in this image? Reply with a single JSON object:
+    {"is_anomalous": bool, "confidence": float, "description": str, "defect_type": str}
+  detailed: |
+    You are an industrial quality inspector. Examine this image carefully.
+    Determine if there are any defects, damage, or anomalies.
+    Reply with a single JSON object and no other text:
+    {
+      "is_anomalous": bool,
+      "confidence": float between 0 and 1,
+      "description": short natural-language description,
+      "defect_type": one of [crack, scratch, dent, contamination, discoloration, missing, misaligned, corrosion, other, none]
+    }
+  cot: |
+    Examine this image step by step.
+    Step 1: Describe what you see.
+    Step 2: Identify any unusual patterns, discoloration, cracks, or damage.
+    Step 3: Decide whether this is a normal sample or contains a defect.
+    Finally, reply with a single JSON object:
+    {"is_anomalous": bool, "confidence": float, "description": str, "defect_type": str}
