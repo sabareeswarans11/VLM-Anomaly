@@ -121,3 +121,6 @@ node_modules/
 REPORT.md
 results/explorer_data.json
 results/plots/
+
+# Generated paper outputs (reproduced from results/ by paper/reproduce.py)
+paper/tables.md
