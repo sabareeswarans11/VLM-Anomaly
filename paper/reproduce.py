@@ -40,8 +40,10 @@ def main() -> None:
 
     if lb.empty:
         print("No results found in results/. Run an evaluation first.")
-        print("  Quick mock run: python scripts/run_vlm_eval.py --backend mock "
-              "--dataset mvtec --category bottle --limit 5")
+        print(
+            "  Quick mock run: python scripts/run_vlm_eval.py --backend mock "
+            "--dataset mvtec --category bottle --limit 5"
+        )
         return
 
     print(f"Found {len(lb)} result rows across {lb['model_id'].nunique()} models.")
@@ -56,8 +58,11 @@ def main() -> None:
     # 2. Summary leaderboard (mean AUROC per model)
     cost_df = cost_accuracy_table(RESULTS_DIR)
     print("\nLeaderboard (mean AUROC across categories):")
-    print(cost_df[["model_id", "mean_auroc", "mean_cost_per_image", "mean_latency_ms"]]
-          .to_string(index=False))
+    print(
+        cost_df[["model_id", "mean_auroc", "mean_cost_per_image", "mean_latency_ms"]].to_string(
+            index=False
+        )
+    )
 
     # 3. Per-category heatmap data
     pivot = category_heatmap(RESULTS_DIR)
@@ -77,8 +82,11 @@ def _write_tables(lb, cost_df, pivot) -> None:
     # Table 1: leaderboard
     lines.append("## Table 1 — Leaderboard\n")
     if not lb.empty:
-        lines.append(lb[["model_id", "backend", "dataset", "category",
-                          "n_images", "auroc", "f1"]].to_markdown(index=False))
+        lines.append(
+            lb[
+                ["model_id", "backend", "dataset", "category", "n_images", "auroc", "f1"]
+            ].to_markdown(index=False)
+        )
         lines.append("\n")
 
     # Table 2: cost-accuracy
