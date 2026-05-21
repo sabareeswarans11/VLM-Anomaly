@@ -139,10 +139,11 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
     for r in results:
+        auroc = f"{r.auroc:.3f}" if r.auroc is not None else "N/A"
+        f1 = f"{r.f1:.3f}" if r.f1 is not None else "N/A"
         print(
             f"{r.category:20s}  n={r.n_images:4d}  "
-            f"auroc={r.auroc:.3f if r.auroc is not None else 'N/A':>8}  "
-            f"f1={r.f1:.3f if r.f1 is not None else 'N/A':>8}  "
+            f"auroc={auroc:>8}  f1={f1:>8}  "
             f"cost=${r.total_cost_usd:.4f}"
         )
 
