@@ -1,4 +1,4 @@
-"""Google Gemini backend — Gemini 3 Flash and Gemini 3 Pro.
+"""Google Gemini backend — Gemini 2.5 Flash / Pro (and future 3.x).
 
 Uses the Gemini REST API directly (no Python SDK) via httpx so we stay
 consistent with the rest of the codebase's HTTP layer.
@@ -22,10 +22,12 @@ log = get_logger(__name__)
 
 _API_BASE = "https://generativelanguage.googleapis.com/v1beta/models"
 
-# Approximate per-token prices (USD) for Gemini 3 Flash and Pro (2026).
+# Approximate per-token prices (USD).
 _PRICES: dict[str, tuple[float, float]] = {
-    "gemini-3-flash": (0.00000010, 0.00000040),  # $0.10 / $0.40 per 1M
-    "gemini-3-pro": (0.00000125, 0.00000500),  # $1.25 / $5.00 per 1M
+    "gemini-2.5-flash": (0.00000010, 0.00000040),  # $0.10 / $0.40 per 1M
+    "gemini-2.5-pro": (0.00000125, 0.00000500),  # $1.25 / $5.00 per 1M
+    "gemini-2.0-flash": (0.00000010, 0.00000030),
+    "gemini-2.0-flash-001": (0.00000010, 0.00000030),
     "gemini-2.5-flash-preview-05-20": (0.00000010, 0.00000040),
     "gemini-2.5-pro-preview-05-06": (0.00000125, 0.00000500),
 }
@@ -44,7 +46,7 @@ class GeminiBackend(VLMBackend):
 
     def __init__(
         self,
-        model: str = "gemini-3-flash",
+        model: str = "gemini-2.5-flash",
         api_key: str | None = None,
         max_tokens: int = 512,
     ) -> None:
