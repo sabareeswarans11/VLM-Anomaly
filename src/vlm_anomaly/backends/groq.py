@@ -84,8 +84,8 @@ class GroqBackend(VLMBackend):
 
     # Retry up to 8 times on transient errors; 429s are handled inline below.
     @retry(
-        stop=stop_after_attempt(8),
-        wait=wait_exponential(multiplier=2, min=10, max=120),
+        stop=stop_after_attempt(15),
+        wait=wait_exponential(multiplier=2, min=10, max=30),
         reraise=True,
     )
     async def _async_predict(self, image: Path, prompt: str) -> AnomalyPrediction:
