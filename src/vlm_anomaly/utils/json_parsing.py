@@ -77,6 +77,36 @@ def extract_json(text: str) -> tuple[dict[str, Any], bool]:
     return {}, True
 
 
+def parse_batch_response(text: str, n: int) -> list[tuple[dict[str, Any], bool]]:
+    """Parse a VLM batch response (JSON array) into per-image prediction dicts.
+
+    Args:
+        text: Raw VLM response expected to contain a JSON array of ``n`` items.
+        n: Number of images in the batch (used to pad missing entries).
+
+    Returns:
+        List of ``(data_dict, parse_error)`` tuples, length == ``n``.
+    """
+    text = text.strip()
+    array = _try_parse_array(text)
+    if array is None:
+        return [({}, True)] * n
+
+    results = []
+    for item in array[:n]:
+        if isinstance(item, dict):
+            data, err = parse_anomaly_prediction_dict(json.dumps(item))
+            results.append((data, err))
+        else:
+            results.append(({}, True))
+
+    # Pad if Claude returned fewer items than expected
+    while len(results) < n:
+        results.append(({}, True))
+
+    return results
+
+
 def parse_anomaly_prediction_dict(text: str) -> tuple[dict[str, Any], bool]:
     """Extract and normalise a VLM response into an ``AnomalyPrediction`` dict.
 
@@ -135,6 +165,49 @@ def parse_anomaly_prediction_dict(text: str) -> tuple[dict[str, Any], bool]:
 # ---------------------------------------------------------------------------
 # Internal helpers
 # ---------------------------------------------------------------------------
+
+
+def _try_parse_array(text: str) -> list[Any] | None:
+    """Try multiple strategies to parse a JSON array from ``text``."""
+    for candidate in (text, _strip_code_fences(text), _extract_balanced_brackets(text)):
+        if not candidate:
+            continue
+        try:
+            parsed = json.loads(candidate)
+            if isinstance(parsed, list):
+                return parsed
+        except json.JSONDecodeError:
+            pass
+    return None
+
+
+def _extract_balanced_brackets(text: str) -> str:
+    """Return the substring spanning the first balanced ``[…]`` block."""
+    start = text.find("[")
+    if start == -1:
+        return ""
+    depth = 0
+    in_string = False
+    escape_next = False
+    for i, ch in enumerate(text[start:], start):
+        if escape_next:
+            escape_next = False
+            continue
+        if ch == "\\" and in_string:
+            escape_next = True
+            continue
+        if ch == '"' and not escape_next:
+            in_string = not in_string
+            continue
+        if in_string:
+            continue
+        if ch == "[":
+            depth += 1
+        elif ch == "]":
+            depth -= 1
+            if depth == 0:
+                return text[start : i + 1]
+    return ""
 
 
 def _extract_balanced_braces(text: str) -> str:
