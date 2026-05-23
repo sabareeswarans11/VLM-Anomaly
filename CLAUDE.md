@@ -12,7 +12,7 @@
 - **Remote:** https://github.com/sabareeswarans11/VLM-Anomaly
 - **Owner:** Sab (sabareeswarans11@gmail.com)
 - **License:** MIT
-- **Status:** Active development — benchmark toolkit + on-device iPhone edge demo.
+- **Status:** Active development — benchmark toolkit + on-device iPhone edge demo. **Repository is public (MIT).**
 - **Primary IDE:** PyCharm (Claude Code CLI invoked from the integrated terminal).
 
 ---
