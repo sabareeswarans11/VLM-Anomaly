@@ -125,7 +125,7 @@ class GroqBackend(VLMBackend):
                 remaining_tokens=resp.headers.get("x-ratelimit-remaining-tokens"),
                 reset_tokens=resp.headers.get("x-ratelimit-reset-tokens"),
             )
-            await asyncio.sleep(retry_after)
+            await asyncio.sleep(min(retry_after, 30.0))
             resp.raise_for_status()  # trigger tenacity retry
 
         resp.raise_for_status()
