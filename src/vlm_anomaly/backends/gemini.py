@@ -40,7 +40,7 @@ _PRICES: dict[str, tuple[float, float]] = {
 }
 
 # Free-tier floor: 4.5s → ~13 req/min, under the 15 RPM limit.
-_MIN_INTERVAL_S: float = 4.5
+_MIN_INTERVAL_S: float = 6.0
 
 _rate_lock = threading.Lock()
 _last_call_ts: float = 0.0
@@ -69,7 +69,7 @@ class GeminiBackend(VLMBackend):
 
     def __init__(
         self,
-        model: str = "gemini-2.0-flash",
+        model: str = "gemini-2.5-flash",
         api_key: str | None = None,
         max_tokens: int = 512,
     ) -> None:
