@@ -15,7 +15,6 @@ import threading
 import time
 from pathlib import Path
 
-import httpx
 from tenacity import retry, stop_after_attempt, wait_exponential
 
 from vlm_anomaly.backends.base import VLMBackend
@@ -43,17 +42,16 @@ _PRICES: dict[str, tuple[float, float]] = {
 _MIN_INTERVAL_S: float = 6.0
 
 _rate_lock = threading.Lock()
-_last_call_ts: float = 0.0
+_rate_state: dict[str, float] = {"last_call_ts": 0.0}
 
 
 def _wait_for_rate_limit() -> None:
-    global _last_call_ts
     with _rate_lock:
         now = time.monotonic()
-        gap = _MIN_INTERVAL_S - (now - _last_call_ts)
+        gap = _MIN_INTERVAL_S - (now - _rate_state["last_call_ts"])
         if gap > 0:
             time.sleep(gap)
-        _last_call_ts = time.monotonic()
+        _rate_state["last_call_ts"] = time.monotonic()
 
 
 class GeminiBackend(VLMBackend):
