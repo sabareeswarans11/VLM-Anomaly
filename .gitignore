@@ -124,3 +124,6 @@ results/plots/
 
 # Generated paper outputs (reproduced from results/ by paper/reproduce.py)
 paper/tables.md
+
+# Kaggle credentials
+kaggle.json
