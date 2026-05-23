@@ -130,20 +130,46 @@ def cost_accuracy_table(results_dir: str | Path) -> pd.DataFrame:
 # ---------------------------------------------------------------------------
 
 
+def _deduplicate_files(files: list[Path]) -> list[Path]:
+    """For each (model_id, category) pair keep only the most-complete file.
+
+    When the same model ran twice for the same category, we want the file
+    with the most lines (most images processed), not both.
+    """
+    import json
+
+    group: dict[tuple[str, str], tuple[int, Path]] = {}
+    for path in files:
+        try:
+            first_line = path.read_text().splitlines()[0]
+            rec = json.loads(first_line)
+            key = (rec.get("model_id", ""), rec.get("category", ""))
+            n_lines = sum(1 for _ in path.read_text().splitlines() if _.strip())
+            prev_n, _ = group.get(key, (0, path))
+            if n_lines >= prev_n:
+                group[key] = (n_lines, path)
+        except Exception:
+            group[(path.stem, "")] = (0, path)
+
+    return [path for _, path in group.values()]
+
+
 def _aggregate_jsonl(files: list[Path]) -> pd.DataFrame:
     """Re-aggregate per-image JSONL records using DuckDB."""
     if not files:
         return pd.DataFrame()
 
-    # Build a glob pattern DuckDB can use
-    parent = files[0].parent
-    glob = str(parent / "*.jsonl")
+    files = _deduplicate_files(files)
+    results_dir = files[0].parent
+
+    # Pass the deduplicated file list explicitly so DuckDB never sees old runs.
+    file_list = ", ".join(f"'{p}'" for p in files)
 
     try:
         con = duckdb.connect()
         con.execute(f"""
             CREATE OR REPLACE VIEW raw AS
-            SELECT * FROM read_ndjson_auto('{glob}', ignore_errors=true)
+            SELECT * FROM read_ndjson_auto([{file_list}], ignore_errors=true)
         """)
 
         # Flatten nested prediction struct
@@ -158,6 +184,9 @@ def _aggregate_jsonl(files: list[Path]) -> pd.DataFrame:
                 AVG(prediction.latency_ms)                  AS mean_latency_ms,
                 SUM(prediction.cost_usd)                    AS total_cost_usd
             FROM raw
+            WHERE model_id IS NOT NULL
+              AND category IS NOT NULL
+              AND dataset  IS NOT NULL
             GROUP BY model_id, backend, dataset, category
         """).df()
         con.close()
@@ -169,7 +198,7 @@ def _aggregate_jsonl(files: list[Path]) -> pd.DataFrame:
     rows = []
     for _, grp in df.iterrows():
         row = grp.to_dict()
-        auroc, f1 = _recompute_metrics_for_group(parent, grp)
+        auroc, f1 = _recompute_metrics_for_group(results_dir, grp)
         row["auroc"] = auroc
         row["f1"] = f1
         rows.append(row)
@@ -186,8 +215,13 @@ def _recompute_metrics_for_group(
     from vlm_anomaly.evaluators.base import _safe_auroc, _safe_f1
 
     labels, scores, preds = [], [], []
+
+    # Use only the most-complete file for this model+category to avoid double-counting.
     pattern = f"*_{grp['dataset']}_{grp['category']}.jsonl"
-    for path in results_dir.glob(pattern):
+    candidates = list(results_dir.glob(pattern))
+    best = _deduplicate_files(candidates)
+
+    for path in best:
         for line in path.read_text().splitlines():
             try:
                 rec = json.loads(line)
