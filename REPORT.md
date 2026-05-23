@@ -13,8 +13,8 @@ _Generated: 2026-05-23 · MVTec AD (15 categories)_
 
 ## Model 1 — Gemini 2.5 Flash (`gemini/gemini-2.5-flash`)
 
-**Status:** 13 / 15 categories complete (bottle and cable pending)  
-**Mean AUROC:** 0.622 · **Avg latency:** ~3,970 ms · **Avg cost:** ~$0.006/image
+**Status:** 13 / 15 categories complete (bottle and cable never ran — rerun notebook 06 to complete)
+**Mean AUROC:** 0.622 · **Avg latency:** ~3,967 ms · **Avg cost:** ~$0.000051/image
 
 | Category    | N images | AUROC  | F1     | Latency (ms) | Cost (USD) |
 |:------------|:--------:|:------:|:------:|-------------:|-----------:|
@@ -38,32 +38,32 @@ _Generated: 2026-05-23 · MVTec AD (15 categories)_
 
 ## Model 2 — Qwen3-VL-32B (`openrouter/qwen/qwen3-vl-32b-instruct`)
 
-**Status:** In progress — sweep running via OpenRouter  
-**Mean AUROC:** TBD · **Avg latency:** ~2,100 ms · **Avg cost:** ~$0.0002/image
+**Status:** Complete — all 15 categories done
+**Mean AUROC:** 0.178 · **Avg latency:** ~2,122 ms · **Avg cost:** ~$0.000148/image
 
 | Category    | N images | AUROC  | F1     | Latency (ms) | Cost (USD) |
 |:------------|:--------:|:------:|:------:|-------------:|-----------:|
-| bottle      | —        | —      | —      | —            | —          |
-| cable       | —        | —      | —      | —            | —          |
-| capsule     | —        | —      | —      | —            | —          |
-| carpet      | —        | —      | —      | —            | —          |
-| grid        | —        | —      | —      | —            | —          |
-| hazelnut    | —        | —      | —      | —            | —          |
-| leather     | —        | —      | —      | —            | —          |
-| metal_nut   | —        | —      | —      | —            | —          |
-| pill        | —        | —      | —      | —            | —          |
-| screw       | —        | —      | —      | —            | —          |
-| tile        | —        | —      | —      | —            | —          |
-| toothbrush  | —        | —      | —      | —            | —          |
-| transistor  | —        | —      | —      | —            | —          |
-| wood        | —        | —      | —      | —            | —          |
-| zipper      | —        | —      | —      | —            | —          |
+| pill        | 167      | 0.482  | 0.904  | 2,126        | 0.0214     |
+| cable       | 150      | 0.349  | 0.618  | 1,913        | 0.0230     |
+| transistor  | 100      | 0.339  | 0.695  | 2,270        | 0.0163     |
+| hazelnut    | 110      | 0.299  | 0.972  | 2,600        | 0.0174     |
+| zipper      | 151      | 0.293  | 0.648  | 1,954        | 0.0234     |
+| bottle      | 83       | 0.209  | 0.926  | 1,950        | 0.0110     |
+| toothbrush  | 42       | 0.153  | 0.949  | 2,283        | 0.0070     |
+| capsule     | 132      | 0.149  | 0.789  | 1,916        | 0.0197     |
+| screw       | 160      | 0.138  | 0.696  | 1,756        | 0.0245     |
+| metal_nut   | 115      | 0.097  | 0.938  | 2,106        | 0.0119     |
+| grid        | 78       | 0.055  | 0.983  | 2,139        | 0.0127     |
+| carpet      | 117      | 0.050  | 0.977  | 2,122        | 0.0183     |
+| wood        | 79       | 0.025  | 0.957  | 2,504        | 0.0133     |
+| tile        | 117      | 0.023  | 0.923  | 1,794        | 0.0140     |
+| leather     | 124      | 0.013  | 0.978  | 2,397        | 0.0194     |
 
 ---
 
 ## Model 3 — Claude Opus 4.7 (`anthropic/claude-opus-4-7`)
 
-**Status:** Pending — requires Anthropic API credit ($5 minimum)  
+**Status:** Pending — requires Anthropic API credit ($5 minimum covers ~2 categories)
 **Mean AUROC:** TBD · **Avg latency:** TBD · **Avg cost:** ~$0.028/image (est.)
 
 | Category    | N images | AUROC  | F1     | Latency (ms) | Cost (USD) |
@@ -86,19 +86,19 @@ _Generated: 2026-05-23 · MVTec AD (15 categories)_
 
 ---
 
-## Overall Summary (when complete)
+## Overall Summary
 
-| Model                                 | Type       | Mean AUROC | Cost/Image | Latency   | Status      |
-|:--------------------------------------|:----------:|:----------:|:----------:|:---------:|:-----------:|
-| gemini/gemini-2.5-flash               | Cloud VLM  | 0.622      | $0.006     | 3,970 ms  | 13/15 done  |
-| openrouter/qwen/qwen3-vl-32b-instruct | Cloud VLM  | TBD        | $0.0002    | ~2,100 ms | Running     |
-| anthropic/claude-opus-4-7             | Cloud VLM  | TBD        | $0.028     | TBD       | Pending     |
+| Model                                 | Type       | Mean AUROC | Cost/Image   | Latency   | Status        |
+|:--------------------------------------|:----------:|:----------:|:------------:|:---------:|:-------------:|
+| gemini/gemini-2.5-flash               | Cloud VLM  | 0.622      | $0.000051    | 3,967 ms  | 13/15 done    |
+| openrouter/qwen/qwen3-vl-32b-instruct | Cloud VLM  | 0.178      | $0.000148    | 2,122 ms  | 15/15 done    |
+| anthropic/claude-opus-4-7             | Cloud VLM  | TBD        | ~$0.028 est. | TBD       | Pending credit |
 
 ---
 
 ## Methodology
 
-- **Dataset**: MVTec AD — 15 categories, ~5 GB, ~1,245 test images total.
+- **Dataset**: MVTec AD — 15 categories, ~5 GB, ~1,725 test images total.
 - **Evaluation**: Zero-shot — no training data, no normal reference set. Each image classified with a single prompt from `prompts/manufacturing.yaml` (`detailed` variant).
 - **Metrics**: Image-level AUROC and F1 (threshold = 0.5 on confidence score).
 - **Cost**: Actual token cost from provider billing (input + output tokens).
