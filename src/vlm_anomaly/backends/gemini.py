@@ -1,14 +1,21 @@
-"""Google Gemini backend — Gemini 2.5 Flash / Pro (and future 3.x).
+"""Google Gemini backend — Gemini 2.0 Flash / 2.5 Flash / Pro.
 
 Uses the Gemini REST API directly (no Python SDK) via httpx so we stay
 consistent with the rest of the codebase's HTTP layer.
+
+Free-tier limits (Gemini 2.0 Flash):
+  - 15 RPM, 1,500 RPD, 1M TPM
+  A 4.5s floor between calls keeps us at ~13 req/min, safely under 15 RPM.
 """
 
 from __future__ import annotations
 
+import asyncio
+import threading
 import time
 from pathlib import Path
 
+import httpx
 from tenacity import retry, stop_after_attempt, wait_exponential
 
 from vlm_anomaly.backends.base import VLMBackend
@@ -24,20 +31,36 @@ _API_BASE = "https://generativelanguage.googleapis.com/v1beta/models"
 
 # Approximate per-token prices (USD).
 _PRICES: dict[str, tuple[float, float]] = {
-    "gemini-2.5-flash": (0.00000010, 0.00000040),  # $0.10 / $0.40 per 1M
-    "gemini-2.5-pro": (0.00000125, 0.00000500),  # $1.25 / $5.00 per 1M
+    "gemini-2.5-flash": (0.00000010, 0.00000040),
+    "gemini-2.5-pro": (0.00000125, 0.00000500),
     "gemini-2.0-flash": (0.00000010, 0.00000030),
     "gemini-2.0-flash-001": (0.00000010, 0.00000030),
     "gemini-2.5-flash-preview-05-20": (0.00000010, 0.00000040),
     "gemini-2.5-pro-preview-05-06": (0.00000125, 0.00000500),
 }
 
+# Free-tier floor: 4.5s → ~13 req/min, under the 15 RPM limit.
+_MIN_INTERVAL_S: float = 4.5
+
+_rate_lock = threading.Lock()
+_last_call_ts: float = 0.0
+
+
+def _wait_for_rate_limit() -> None:
+    global _last_call_ts
+    with _rate_lock:
+        now = time.monotonic()
+        gap = _MIN_INTERVAL_S - (now - _last_call_ts)
+        if gap > 0:
+            time.sleep(gap)
+        _last_call_ts = time.monotonic()
+
 
 class GeminiBackend(VLMBackend):
     """Google Gemini multimodal backend.
 
     Args:
-        model: Gemini model name (e.g. ``"gemini-3-flash"``).
+        model: Gemini model name (e.g. ``"gemini-2.0-flash"``).
         api_key: Google AI API key.  Defaults to ``GEMINI_API_KEY`` env var.
         max_tokens: Maximum tokens to generate.
     """
@@ -46,7 +69,7 @@ class GeminiBackend(VLMBackend):
 
     def __init__(
         self,
-        model: str = "gemini-2.5-flash",
+        model: str = "gemini-2.0-flash",
         api_key: str | None = None,
         max_tokens: int = 512,
     ) -> None:
@@ -58,9 +81,10 @@ class GeminiBackend(VLMBackend):
         self._price_out = price_out
 
     def predict(self, image: Path, prompt: str) -> AnomalyPrediction:
+        _wait_for_rate_limit()
         return self._run(self._async_predict(image, prompt))
 
-    @retry(stop=stop_after_attempt(3), wait=wait_exponential(min=2, max=30), reraise=True)
+    @retry(stop=stop_after_attempt(10), wait=wait_exponential(multiplier=2, min=5, max=30), reraise=True)
     async def _async_predict(self, image: Path, prompt: str) -> AnomalyPrediction:
         if not self.api_key:
             raise ValueError("GEMINI_API_KEY is not set.")
@@ -81,9 +105,16 @@ class GeminiBackend(VLMBackend):
         url = f"{_API_BASE}/{self.model}:generateContent?key={self.api_key}"
 
         t0 = time.perf_counter()
-        async with self._make_client() as client:
+        async with self._make_client(timeout=60.0) as client:
             resp = await client.post(url, json=payload)
         latency_ms = (time.perf_counter() - t0) * 1000
+
+        if resp.status_code == 429:
+            retry_after = float(resp.headers.get("retry-after", 30))
+            retry_after = min(retry_after, 30.0)
+            log.warning("gemini.rate_limited", retry_after_s=retry_after, model=self.model)
+            await asyncio.sleep(retry_after)
+            resp.raise_for_status()
 
         resp.raise_for_status()
         body = resp.json()
@@ -99,6 +130,8 @@ class GeminiBackend(VLMBackend):
             "gemini.predict",
             model=self.model,
             latency_ms=round(latency_ms),
+            tokens_in=tokens_in,
+            tokens_out=tokens_out,
             parse_error=parse_error,
         )
 
