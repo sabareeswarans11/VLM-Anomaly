@@ -35,7 +35,7 @@ _API_URL = "https://api.groq.com/openai/v1/chat/completions"
 
 # Proactive rate-limit floor: 6 s between calls ≈ 10 req/min, well under
 # the 30k-TPM ceiling at ~2.5k tokens per vision request.
-_MIN_INTERVAL_S: float = 6.0
+_MIN_INTERVAL_S: float = 5.5
 
 # Module-level state shared across all GroqBackend instances in a process.
 _rate_lock = threading.Lock()
