@@ -36,6 +36,7 @@ class Settings(BaseSettings):
     gemini_api_key: str | None = Field(default=None, alias="GEMINI_API_KEY")
     anthropic_api_key: str | None = Field(default=None, alias="ANTHROPIC_API_KEY")
     groq_api_key: str | None = Field(default=None, alias="GROQ_API_KEY")
+    openrouter_api_key: str | None = Field(default=None, alias="OPEN_ROUTER")
 
     # ── MLflow ────────────────────────────────────────────────────────────────
     mlflow_tracking_uri: str | None = Field(default=None, alias="MLFLOW_TRACKING_URI")
