@@ -82,7 +82,11 @@ class GeminiBackend(VLMBackend):
         _wait_for_rate_limit()
         return self._run(self._async_predict(image, prompt))
 
-    @retry(stop=stop_after_attempt(10), wait=wait_exponential(multiplier=2, min=5, max=30), reraise=True)
+    @retry(
+        stop=stop_after_attempt(10),
+        wait=wait_exponential(multiplier=2, min=5, max=30),
+        reraise=True,
+    )
     async def _async_predict(self, image: Path, prompt: str) -> AnomalyPrediction:
         if not self.api_key:
             raise ValueError("GEMINI_API_KEY is not set.")
