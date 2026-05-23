@@ -15,6 +15,7 @@ Free-tier limits (meta-llama/llama-4-scout-17b-16e-instruct):
 from __future__ import annotations
 
 import asyncio
+import re
 import threading
 import time
 from pathlib import Path
@@ -39,18 +40,17 @@ _MIN_INTERVAL_S: float = 5.5
 
 # Module-level state shared across all GroqBackend instances in a process.
 _rate_lock = threading.Lock()
-_last_call_ts: float = 0.0
+_rate_state: dict[str, float] = {"last_call_ts": 0.0}
 
 
 def _wait_for_rate_limit() -> None:
     """Block (synchronously) until the minimum inter-request interval has passed."""
-    global _last_call_ts
     with _rate_lock:
         now = time.monotonic()
-        gap = _MIN_INTERVAL_S - (now - _last_call_ts)
+        gap = _MIN_INTERVAL_S - (now - _rate_state["last_call_ts"])
         if gap > 0:
             time.sleep(gap)
-        _last_call_ts = time.monotonic()
+        _rate_state["last_call_ts"] = time.monotonic()
 
 
 class GroqBackend(VLMBackend):
@@ -182,7 +182,6 @@ def _parse_duration_str(s: str) -> float:
     """Parse Groq duration strings like '4.85s', '1m30s', '2h10m5s' into seconds."""
     s = s.strip()
     total = 0.0
-    import re
     for value, unit in re.findall(r"([\d.]+)([hms])", s):
         v = float(value)
         if unit == "h":
