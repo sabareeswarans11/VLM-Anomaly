@@ -20,6 +20,7 @@ from vlm_anomaly.backends.base import VLMBackend
 from vlm_anomaly.backends.gemini import GeminiBackend
 from vlm_anomaly.backends.groq import GroqBackend
 from vlm_anomaly.backends.mock import MockVLMBackend
+from vlm_anomaly.backends.openrouter import OpenRouterBackend
 from vlm_anomaly.backends.together import TogetherBackend
 from vlm_anomaly.schemas import AnomalyPrediction
 from vlm_anomaly.utils.cost_tracker import BudgetExceeded, CostTracker
@@ -454,6 +455,73 @@ class TestGroqBackendContract:
         b.api_key = None
         with self._mock_post(_GOOD_RAW), pytest.raises(ValueError, match="GROQ_API_KEY"):
             b.predict(SAMPLE_NORMAL, PROMPT)
+
+
+# ---------------------------------------------------------------------------
+# OpenRouter backend contract (mocked HTTP)
+# ---------------------------------------------------------------------------
+
+
+class TestOpenRouterBackendContract:
+    def _backend(self) -> OpenRouterBackend:
+        return OpenRouterBackend(api_key="sk-or-v1-fake")
+
+    def _mock_post(self, raw: str):
+        resp = _fake_response(raw)
+        cm = AsyncMock()
+        cm.__aenter__ = AsyncMock(return_value=cm)
+        cm.__aexit__ = AsyncMock(return_value=False)
+        cm.post = AsyncMock(return_value=resp)
+        return patch(
+            "vlm_anomaly.backends.openrouter.OpenRouterBackend._make_client", return_value=cm
+        )
+
+    def test_returns_anomaly_prediction(self) -> None:
+        with self._mock_post(_GOOD_RAW):
+            p = self._backend().predict(SAMPLE_NORMAL, PROMPT)
+        assert isinstance(p, AnomalyPrediction)
+
+    def test_is_anomalous_false(self) -> None:
+        with self._mock_post(_GOOD_RAW):
+            p = self._backend().predict(SAMPLE_NORMAL, PROMPT)
+        assert p.is_anomalous is False
+
+    def test_is_anomalous_true(self) -> None:
+        with self._mock_post(_BAD_RAW):
+            p = self._backend().predict(SAMPLE_ANOMALY, PROMPT)
+        assert p.is_anomalous is True
+
+    def test_image_path_set(self) -> None:
+        with self._mock_post(_GOOD_RAW):
+            p = self._backend().predict(SAMPLE_NORMAL, PROMPT)
+        assert p.image_path == SAMPLE_NORMAL
+
+    def test_cost_positive(self) -> None:
+        with self._mock_post(_GOOD_RAW):
+            p = self._backend().predict(SAMPLE_NORMAL, PROMPT)
+        assert p.cost_usd > 0.0
+
+    def test_tokens_recorded(self) -> None:
+        with self._mock_post(_GOOD_RAW):
+            p = self._backend().predict(SAMPLE_NORMAL, PROMPT)
+        assert p.tokens_in == 600
+        assert p.tokens_out == 80
+
+    def test_no_api_key_raises(self) -> None:
+        b = OpenRouterBackend(api_key=None)
+        b.api_key = None
+        with self._mock_post(_GOOD_RAW):
+            with pytest.raises(ValueError, match="OPEN_ROUTER"):
+                b.predict(SAMPLE_NORMAL, PROMPT)
+
+    def test_unknown_model_uses_default_price(self) -> None:
+        b = OpenRouterBackend(model="unknown/model-99", api_key="sk-or-v1-fake")
+        with self._mock_post(_GOOD_RAW):
+            p = b.predict(SAMPLE_NORMAL, PROMPT)
+        assert p.cost_usd > 0.0
+
+    def test_name_is_openrouter(self) -> None:
+        assert OpenRouterBackend.name == "openrouter"
 
 
 # ---------------------------------------------------------------------------

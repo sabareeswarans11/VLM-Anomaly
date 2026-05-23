@@ -79,6 +79,8 @@ class GeminiBackend(VLMBackend):
         self._price_out = price_out
 
     def predict(self, image: Path, prompt: str) -> AnomalyPrediction:
+        if not self.api_key:
+            raise ValueError("GEMINI_API_KEY is not set.")
         _wait_for_rate_limit()
         return self._run(self._async_predict(image, prompt))
 
@@ -88,8 +90,6 @@ class GeminiBackend(VLMBackend):
         reraise=True,
     )
     async def _async_predict(self, image: Path, prompt: str) -> AnomalyPrediction:
-        if not self.api_key:
-            raise ValueError("GEMINI_API_KEY is not set.")
 
         b64 = image_to_base64(image)
         payload = {

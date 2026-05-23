@@ -3,12 +3,30 @@
 from __future__ import annotations
 
 from pathlib import Path
+from unittest.mock import patch
 
 import pytest
 
 from vlm_anomaly.backends.mock import MockVLMBackend
 
 FIXTURES_DIR = Path(__file__).parent / "fixtures"
+
+
+@pytest.fixture(autouse=True)
+def _skip_rate_limit_sleeps():
+    """Bypass backend rate-limit sleeps so unit tests run in seconds."""
+    targets = [
+        "vlm_anomaly.backends.gemini._wait_for_rate_limit",
+        "vlm_anomaly.backends.groq._wait_for_rate_limit",
+        "vlm_anomaly.backends.openrouter._wait_for_rate_limit",
+        "vlm_anomaly.backends.anthropic_backend._wait_for_rate_limit",
+    ]
+    patches = [patch(t) for t in targets]
+    for p in patches:
+        p.start()
+    yield
+    for p in patches:
+        p.stop()
 
 
 @pytest.fixture

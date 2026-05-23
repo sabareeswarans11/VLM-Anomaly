@@ -90,6 +90,8 @@ class AnthropicBackend(VLMBackend):
     # ------------------------------------------------------------------
 
     def predict(self, image: Path, prompt: str) -> AnomalyPrediction:
+        if not self.api_key:
+            raise ValueError("ANTHROPIC_API_KEY is not set.")
         _wait_for_rate_limit()
         return self._run(self._async_predict(image, prompt))
 
@@ -97,8 +99,6 @@ class AnthropicBackend(VLMBackend):
         stop=stop_after_attempt(6), wait=wait_exponential(multiplier=2, min=5, max=60), reraise=True
     )
     async def _async_predict(self, image: Path, prompt: str) -> AnomalyPrediction:
-        if not self.api_key:
-            raise ValueError("ANTHROPIC_API_KEY is not set.")
 
         b64 = image_to_base64(image)
         payload = {
@@ -178,6 +178,8 @@ class AnthropicBackend(VLMBackend):
         Returns:
             One :class:`AnomalyPrediction` per input image, in order.
         """
+        if not self.api_key:
+            raise ValueError("ANTHROPIC_API_KEY is not set.")
         _wait_for_rate_limit()
         return self._run(self._async_predict_batch(images, prompt))
 
@@ -187,8 +189,6 @@ class AnthropicBackend(VLMBackend):
     async def _async_predict_batch(
         self, images: list[Path], prompt: str
     ) -> list[AnomalyPrediction]:
-        if not self.api_key:
-            raise ValueError("ANTHROPIC_API_KEY is not set.")
 
         n = len(images)
         t0 = time.perf_counter()

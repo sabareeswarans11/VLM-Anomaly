@@ -79,6 +79,8 @@ class GroqBackend(VLMBackend):
         self.min_interval_s = min_interval_s
 
     def predict(self, image: Path, prompt: str) -> AnomalyPrediction:
+        if not self.api_key:
+            raise ValueError("GROQ_API_KEY is not set.")
         _wait_for_rate_limit()
         return self._run(self._async_predict(image, prompt))
 
@@ -89,8 +91,6 @@ class GroqBackend(VLMBackend):
         reraise=True,
     )
     async def _async_predict(self, image: Path, prompt: str) -> AnomalyPrediction:
-        if not self.api_key:
-            raise ValueError("GROQ_API_KEY is not set.")
 
         data_url = image_to_data_url(image)
         payload = {
