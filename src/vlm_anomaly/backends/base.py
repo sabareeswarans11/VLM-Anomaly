@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import concurrent.futures
 from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Any
@@ -55,8 +56,19 @@ class VLMBackend(ABC):
 
     @staticmethod
     def _run(coro: Any) -> Any:
-        """Run ``coro`` in a new event loop (safe outside Jupyter)."""
-        return asyncio.run(coro)
+        """Run ``coro`` in a way that is safe both in scripts and Jupyter notebooks.
+
+        Jupyter (and Kaggle) already run an event loop, so ``asyncio.run()``
+        raises RuntimeError there.  When a running loop is detected we dispatch
+        to a fresh thread that has its own loop instead.
+        """
+        try:
+            asyncio.get_running_loop()
+            # Inside a running loop (Jupyter/IPython) — use a worker thread.
+            with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
+                return pool.submit(asyncio.run, coro).result()
+        except RuntimeError:
+            return asyncio.run(coro)
 
     @staticmethod
     def _make_client(timeout: float = 60.0) -> httpx.AsyncClient:
