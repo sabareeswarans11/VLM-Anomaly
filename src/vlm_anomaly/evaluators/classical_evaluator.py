@@ -15,6 +15,7 @@ Training takes 2–10 minutes per category on a laptop.
 from __future__ import annotations
 
 import json
+import sys
 import time
 import uuid
 from pathlib import Path
@@ -85,19 +86,27 @@ class ClassicalEvaluator:
             image_size=self.image_size,
         )
 
-        # enable_model_summary=False prevents rich from recursing into deep
-        # backbone architectures (e.g. WideResNet50 in PatchCore) which causes
-        # RecursionError in rich's table renderer.
+        # WideResNet50 (PatchCore backbone) has hundreds of nested modules.
+        # Rich's tree renderer hits Python's default recursion limit (1000)
+        # in two callbacks: RichModelSummary and RichProgressBar.
+        # Disable both, and raise the limit as a safety net for any other
+        # rich-based renderer that might walk the module tree.
         engine = Engine(
             accelerator="cpu",
             devices=1,
             max_epochs=1,
             enable_model_summary=False,
+            enable_progress_bar=False,
         )
 
-        t0 = time.perf_counter()
-        engine.fit(model, datamodule=datamodule)
-        results_list = engine.test(model, datamodule=datamodule, verbose=False)
+        _saved_limit = sys.getrecursionlimit()
+        sys.setrecursionlimit(5000)
+        try:
+            t0 = time.perf_counter()
+            engine.fit(model, datamodule=datamodule)
+            results_list = engine.test(model, datamodule=datamodule, verbose=False)
+        finally:
+            sys.setrecursionlimit(_saved_limit)
         elapsed_ms = (time.perf_counter() - t0) * 1000
 
         eval_result = _parse_anomalib_results(
