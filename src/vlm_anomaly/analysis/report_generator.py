@@ -195,17 +195,20 @@ def _actual_cost_section() -> str:
     return """\
 ## Actual Provider Spend
 
-Costs below are **real billing figures** from each provider dashboard for the
-full MVTec AD sweep (15 categories, ~1,725 test images, zero-shot, single prompt).
+Costs below are **real billing figures** for the full MVTec AD sweep
+(15 categories, ~1,725 test images).
 
-| Model | Provider | Dataset | Images | Actual Spend | Cost / Image |
-|---|---|---|---|---|---|
-| Claude Opus 4.7 | Anthropic API | MVTec AD (15 cat) | 1,725 | **$13.36** | ~$0.0077 |
-| Gemini 2.5 Flash | Google AI Studio | MVTec AD (15 cat) | 1,725 | **$2.37** | ~$0.0014 |
-| Qwen3-VL-32B | OpenRouter | MVTec AD (15 cat) | 1,725 | **$0.28** | ~$0.0002 |
+| Model | Type | Provider | Dataset | Images | Actual Spend | Cost / Image |
+|---|---|---|---|---|---|---|
+| PaDiM | Classical | Open Source ([Anomalib](https://github.com/openvinotoolkit/anomalib)) | MVTec AD (15 cat) | 1,725 | **$0.00** | $0 |
+| PatchCore | Classical | Open Source ([Anomalib](https://github.com/openvinotoolkit/anomalib)) | MVTec AD (15 cat) | 1,725 | **$0.00** | $0 |
+| Qwen3-VL-32B | Cloud VLM | OpenRouter | MVTec AD (15 cat) | 1,725 | **$0.28** | ~$0.0002 |
+| Gemini 2.5 Flash | Cloud VLM | Google AI Studio | MVTec AD (15 cat) | 1,725 | **$2.37** | ~$0.0014 |
+| Claude Opus 4.7 | Cloud VLM | Anthropic API | MVTec AD (15 cat) | 1,725 | **$13.36** | ~$0.0077 |
 
-> These values are also stored in `results/costs_override.json` and applied
-> automatically whenever the report is regenerated.
+> Cloud VLM costs are actual billing figures stored in `results/costs_override.json`
+> and applied automatically on report generation.
+> Classical baselines run fully on CPU — no API, no tokens, no cost.
 
 ### Add credits / manage billing
 

@@ -94,7 +94,7 @@ class ClassicalEvaluator:
 
         eval_result = _parse_anomalib_results(
             results_list,
-            model_id=self.model_name,
+            model_id=f"classical/{self.model_name}",
             dataset=self.dataset_name,
             category=self.category,
             elapsed_ms=elapsed_ms,
@@ -159,27 +159,33 @@ def _build_model(name: str):
 
 
 def _build_datamodule(dataset_name: str, category: str, data_root: Path, image_size: int):
-    if dataset_name == "mvtec":
-        from anomalib.data import MVTec
+    # anomalib 2.x uses MVTecAD (not MVTec) and no image_size param.
+    # Resize is handled via augmentations.
+    import torchvision.transforms.v2 as T
 
-        return MVTec(
+    aug = T.Resize((image_size, image_size), antialias=True)
+
+    if dataset_name == "mvtec":
+        from anomalib.data import MVTecAD
+
+        return MVTecAD(
             root=str(data_root / "mvtec"),
             category=category,
-            image_size=(image_size, image_size),
             train_batch_size=32,
             eval_batch_size=32,
             num_workers=0,
+            augmentations=aug,
         )
     if dataset_name == "visa":
-        from anomalib.data import Visa
+        from anomalib.data import VisaAD  # type: ignore[attr-defined]
 
-        return Visa(
+        return VisaAD(
             root=str(data_root / "visa"),
             category=category,
-            image_size=(image_size, image_size),
             train_batch_size=32,
             eval_batch_size=32,
             num_workers=0,
+            augmentations=aug,
         )
     raise ValueError(f"Unknown dataset: {dataset_name!r}")
 
@@ -210,7 +216,12 @@ def _parse_anomalib_results(
         backend="anomalib",
         dataset=dataset,
         category=category,
-        n_images=int(metrics.get("test/num_samples", metrics.get("num_samples", 0))),
+        n_images=int(
+            metrics.get("test/num_samples")
+            or metrics.get("num_samples")
+            or metrics.get("test/dataset_size")
+            or 0
+        ),
         auroc=_get("image_AUROC") or _get("AUROC") or _get("auroc"),
         f1=_get("image_F1Score") or _get("F1Score") or _get("f1"),
         precision=_get("image_Precision") or _get("Precision"),
