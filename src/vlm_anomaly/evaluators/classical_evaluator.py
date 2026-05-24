@@ -49,6 +49,7 @@ class ClassicalEvaluator:
         dataset_name: Literal["mvtec", "visa"],
         category: str,
         image_size: int = 256,
+        accelerator: str = "cpu",
         settings: Settings | None = None,
     ) -> None:
         if model_name not in _MODEL_NAMES:
@@ -57,6 +58,7 @@ class ClassicalEvaluator:
         self.dataset_name = dataset_name
         self.category = category
         self.image_size = image_size
+        self.accelerator = accelerator
         self.settings = settings or get_settings()
         self.experiment_id = str(uuid.uuid4())[:8]
 
@@ -84,6 +86,7 @@ class ClassicalEvaluator:
             dataset=self.dataset_name,
             category=self.category,
             image_size=self.image_size,
+            accelerator=self.accelerator,
         )
 
         # WideResNet50 (PatchCore backbone) has hundreds of nested modules.
@@ -92,7 +95,7 @@ class ClassicalEvaluator:
         # Disable both, and raise the limit as a safety net for any other
         # rich-based renderer that might walk the module tree.
         engine = Engine(
-            accelerator="cpu",
+            accelerator=self.accelerator,
             devices=1,
             max_epochs=1,
             enable_model_summary=False,
