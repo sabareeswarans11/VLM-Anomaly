@@ -29,7 +29,7 @@ log = get_logger(__name__)
 
 # Conservative per-image cost estimate used for budget pre-check.
 # Backends with known pricing use their own estimate; free backends use 0.
-_FREE_BACKENDS = {"mock", "groq"}
+_FREE_BACKENDS = {"mock", "claude_cli"}
 _COST_ESTIMATE_USD = 0.05  # worst-case upper bound per image
 
 
@@ -159,13 +159,13 @@ class VLMEvaluator:
             rows.append(row)
             _append_jsonl(out_path, row)
 
-            log.debug(
+            log.info(
                 "evaluator.predict.ok",
                 image=sample.image_path.name,
                 is_anomalous=prediction.is_anomalous,
                 confidence=round(prediction.confidence, 3),
                 latency_ms=round(prediction.latency_ms),
-                cost_usd=prediction.cost_usd,
+                cost_usd=round(prediction.cost_usd, 5),
             )
 
         return compute_eval_result(

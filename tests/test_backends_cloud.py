@@ -18,10 +18,8 @@ import pytest
 from vlm_anomaly.backends.anthropic_backend import AnthropicBackend
 from vlm_anomaly.backends.base import VLMBackend
 from vlm_anomaly.backends.gemini import GeminiBackend
-from vlm_anomaly.backends.groq import GroqBackend
 from vlm_anomaly.backends.mock import MockVLMBackend
 from vlm_anomaly.backends.openrouter import OpenRouterBackend
-from vlm_anomaly.backends.together import TogetherBackend
 from vlm_anomaly.schemas import AnomalyPrediction
 from vlm_anomaly.utils.cost_tracker import BudgetExceeded, CostTracker
 from vlm_anomaly.utils.image_utils import image_to_base64, image_to_data_url, load_and_resize
@@ -42,7 +40,7 @@ _BAD_RAW = (
 
 
 def _fake_response(raw: str, tokens_in: int = 600, tokens_out: int = 80) -> MagicMock:
-    """Build a fake httpx Response with a Together/Groq-style body."""
+    """Build a fake httpx Response with an OpenAI-compatible body."""
     mock = MagicMock()
     mock.raise_for_status = MagicMock()
     mock.json.return_value = {
@@ -287,62 +285,6 @@ class TestMockBackendContract:
 
 
 # ---------------------------------------------------------------------------
-# Together backend contract (mocked HTTP)
-# ---------------------------------------------------------------------------
-
-
-class TestTogetherBackendContract:
-    def _backend(self) -> TogetherBackend:
-        return TogetherBackend(api_key="sk-fake")
-
-    def _mock_post(self, raw: str):
-        resp = _fake_response(raw)
-        cm = AsyncMock()
-        cm.__aenter__ = AsyncMock(return_value=cm)
-        cm.__aexit__ = AsyncMock(return_value=False)
-        cm.post = AsyncMock(return_value=resp)
-        return patch("vlm_anomaly.backends.together.TogetherBackend._make_client", return_value=cm)
-
-    def test_returns_anomaly_prediction(self) -> None:
-        with self._mock_post(_GOOD_RAW):
-            p = self._backend().predict(SAMPLE_NORMAL, PROMPT)
-        assert isinstance(p, AnomalyPrediction)
-
-    def test_is_anomalous_false(self) -> None:
-        with self._mock_post(_GOOD_RAW):
-            p = self._backend().predict(SAMPLE_NORMAL, PROMPT)
-        assert p.is_anomalous is False
-
-    def test_is_anomalous_true(self) -> None:
-        with self._mock_post(_BAD_RAW):
-            p = self._backend().predict(SAMPLE_ANOMALY, PROMPT)
-        assert p.is_anomalous is True
-
-    def test_image_path_set(self) -> None:
-        with self._mock_post(_GOOD_RAW):
-            p = self._backend().predict(SAMPLE_NORMAL, PROMPT)
-        assert p.image_path == SAMPLE_NORMAL
-
-    def test_cost_positive(self) -> None:
-        with self._mock_post(_GOOD_RAW):
-            p = self._backend().predict(SAMPLE_NORMAL, PROMPT)
-        assert p.cost_usd > 0.0
-
-    def test_tokens_recorded(self) -> None:
-        with self._mock_post(_GOOD_RAW):
-            p = self._backend().predict(SAMPLE_NORMAL, PROMPT)
-        assert p.tokens_in == 600
-        assert p.tokens_out == 80
-
-    def test_no_api_key_raises(self) -> None:
-        b = TogetherBackend(api_key=None)
-        b.api_key = None
-        with self._mock_post(_GOOD_RAW):
-            with pytest.raises(ValueError, match="TOGETHER_API_KEY"):
-                b.predict(SAMPLE_NORMAL, PROMPT)
-
-
-# ---------------------------------------------------------------------------
 # Gemini backend contract (mocked HTTP)
 # ---------------------------------------------------------------------------
 
@@ -424,40 +366,6 @@ class TestAnthropicBackendContract:
 
 
 # ---------------------------------------------------------------------------
-# Groq backend contract (mocked HTTP)
-# ---------------------------------------------------------------------------
-
-
-class TestGroqBackendContract:
-    def _backend(self) -> GroqBackend:
-        return GroqBackend(api_key="gsk_fake")
-
-    def _mock_post(self, raw: str):
-        resp = _fake_response(raw)
-        cm = AsyncMock()
-        cm.__aenter__ = AsyncMock(return_value=cm)
-        cm.__aexit__ = AsyncMock(return_value=False)
-        cm.post = AsyncMock(return_value=resp)
-        return patch("vlm_anomaly.backends.groq.GroqBackend._make_client", return_value=cm)
-
-    def test_returns_anomaly_prediction(self) -> None:
-        with self._mock_post(_GOOD_RAW):
-            p = self._backend().predict(SAMPLE_NORMAL, PROMPT)
-        assert isinstance(p, AnomalyPrediction)
-
-    def test_cost_is_zero(self) -> None:
-        with self._mock_post(_BAD_RAW):
-            p = self._backend().predict(SAMPLE_ANOMALY, PROMPT)
-        assert p.cost_usd == 0.0  # free tier
-
-    def test_no_api_key_raises(self) -> None:
-        b = GroqBackend(api_key=None)
-        b.api_key = None
-        with self._mock_post(_GOOD_RAW), pytest.raises(ValueError, match="GROQ_API_KEY"):
-            b.predict(SAMPLE_NORMAL, PROMPT)
-
-
-# ---------------------------------------------------------------------------
 # OpenRouter backend contract (mocked HTTP)
 # ---------------------------------------------------------------------------
 
@@ -530,19 +438,6 @@ class TestOpenRouterBackendContract:
 
 
 @pytest.mark.integration
-def test_together_live(sample_normal_image: Path) -> None:
-    from vlm_anomaly.config import get_settings
-
-    key = get_settings().together_api_key
-    if not key:
-        pytest.skip("TOGETHER_API_KEY not set")
-    b = TogetherBackend(api_key=key)
-    p = b.predict(sample_normal_image, "Is there a defect? Reply with JSON.")
-    assert isinstance(p, AnomalyPrediction)
-    assert p.latency_ms > 0
-
-
-@pytest.mark.integration
 def test_gemini_live(sample_normal_image: Path) -> None:
     from vlm_anomaly.config import get_settings
 
@@ -566,13 +461,3 @@ def test_anthropic_live(sample_normal_image: Path) -> None:
     assert isinstance(p, AnomalyPrediction)
 
 
-@pytest.mark.integration
-def test_groq_live(sample_normal_image: Path) -> None:
-    from vlm_anomaly.config import get_settings
-
-    key = get_settings().groq_api_key
-    if not key:
-        pytest.skip("GROQ_API_KEY not set")
-    b = GroqBackend(api_key=key)
-    p = b.predict(sample_normal_image, "Is there a defect? Reply with JSON.")
-    assert isinstance(p, AnomalyPrediction)

@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     """Top-level settings resolved from environment variables and ``.env``.
 
     Env-var lookup rules:
-    - API keys use their conventional names (``TOGETHER_API_KEY``, etc.)
+    - API keys use their conventional names (``GEMINI_API_KEY``, etc.)
       via ``alias``; the ``VLM_ANOMALY_`` prefix is NOT applied to them.
     - Path / budget fields use the ``VLM_ANOMALY_`` prefix
       (e.g. ``VLM_ANOMALY_DATA_DIR``).
@@ -32,10 +32,8 @@ class Settings(BaseSettings):
 
     # ── API keys ─────────────────────────────────────────────────────────────
     # alias bypasses the VLM_ANOMALY_ prefix for these well-known names.
-    together_api_key: str | None = Field(default=None, alias="TOGETHER_API_KEY")
     gemini_api_key: str | None = Field(default=None, alias="GEMINI_API_KEY")
     anthropic_api_key: str | None = Field(default=None, alias="ANTHROPIC_API_KEY")
-    groq_api_key: str | None = Field(default=None, alias="GROQ_API_KEY")
     openrouter_api_key: str | None = Field(default=None, alias="OPEN_ROUTER")
 
     # ── MLflow ────────────────────────────────────────────────────────────────

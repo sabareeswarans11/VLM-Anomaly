@@ -28,10 +28,8 @@ class TestSettingsDefaults:
         clean = {k: v for k, v in os.environ.items() if not k.endswith("_API_KEY")}
         with patch.dict(os.environ, clean, clear=True):
             s = Settings(_env_file=str(tmp_path / "empty.env"))
-        assert s.together_api_key is None
         assert s.gemini_api_key is None
         assert s.anthropic_api_key is None
-        assert s.groq_api_key is None
 
     def test_paths_are_absolute(self) -> None:
         s = get_settings()
@@ -53,11 +51,6 @@ class TestSettingsDefaults:
 
 
 class TestSettingsFromEnv:
-    def test_together_api_key_read_from_env(self) -> None:
-        with patch.dict(os.environ, {"TOGETHER_API_KEY": "sk-test-together"}):
-            s = Settings()
-        assert s.together_api_key == "sk-test-together"
-
     def test_anthropic_api_key_read_from_env(self) -> None:
         with patch.dict(os.environ, {"ANTHROPIC_API_KEY": "sk-ant-test"}):
             s = Settings()

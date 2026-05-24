@@ -17,7 +17,6 @@ def _skip_rate_limit_sleeps():
     """Bypass backend rate-limit sleeps so unit tests run in seconds."""
     targets = [
         "vlm_anomaly.backends.gemini._wait_for_rate_limit",
-        "vlm_anomaly.backends.groq._wait_for_rate_limit",
         "vlm_anomaly.backends.openrouter._wait_for_rate_limit",
         "vlm_anomaly.backends.anthropic_backend._wait_for_rate_limit",
     ]

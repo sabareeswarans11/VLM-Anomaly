@@ -30,10 +30,10 @@ def _build_backend(name: str):
         from vlm_anomaly.backends.mock import MockVLMBackend
 
         return MockVLMBackend()
-    if name == "together":
-        from vlm_anomaly.backends.together import TogetherBackend
+    if name == "claude_cli":
+        from vlm_anomaly.backends.claude_cli import ClaudeCliBackend
 
-        return TogetherBackend()
+        return ClaudeCliBackend()
     if name == "gemini":
         from vlm_anomaly.backends.gemini import GeminiBackend
 
@@ -42,10 +42,6 @@ def _build_backend(name: str):
         from vlm_anomaly.backends.anthropic_backend import AnthropicBackend
 
         return AnthropicBackend()
-    if name == "groq":
-        from vlm_anomaly.backends.groq import GroqBackend
-
-        return GroqBackend()
     if name == "edge_minicpm_llamacpp":
         from vlm_anomaly.backends.edge.minicpm_llamacpp import MiniCPMLlamaCppBackend
 
@@ -84,10 +80,9 @@ def build_parser() -> argparse.ArgumentParser:
         required=True,
         choices=[
             "mock",
-            "together",
+            "claude_cli",
             "gemini",
             "anthropic",
-            "groq",
             "edge_minicpm_llamacpp",
             "edge_minicpm_mlx",
         ],

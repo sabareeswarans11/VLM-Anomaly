@@ -22,6 +22,9 @@ from vlm_anomaly.logging import get_logger
 
 log = get_logger(__name__)
 
+# Backends excluded from leaderboard/reports (demo/smoke-test only).
+_EXCLUDED_BACKENDS = {"claude_cli"}
+
 
 # ---------------------------------------------------------------------------
 # Public API
@@ -76,6 +79,7 @@ def leaderboard(results_dir: str | Path) -> pd.DataFrame:
         )
 
     combined = pd.concat(frames, ignore_index=True)
+    combined = combined[~combined["backend"].isin(_EXCLUDED_BACKENDS)]
     combined = combined.sort_values("auroc", ascending=False, na_position="last")
     return combined.reset_index(drop=True)
 
@@ -96,15 +100,22 @@ def category_heatmap(results_dir: str | Path) -> pd.DataFrame:
 
 
 def cost_accuracy_table(results_dir: str | Path) -> pd.DataFrame:
-    """Return per-model mean AUROC and mean cost per image.
+    """Return per-model mean AUROC, total cost, and mean cost per image.
+
+    Applies overrides from ``results_dir/costs_override.json`` when present
+    so that the leaderboard shows actual provider spend rather than computed
+    per-token estimates.
 
     Args:
         results_dir: Directory containing results files.
 
     Returns:
-        DataFrame with ``model_id``, ``mean_auroc``, ``mean_cost_per_image``,
-        ``mean_latency_ms`` columns.
+        DataFrame with ``model_id``, ``mean_auroc``, ``total_cost_usd``,
+        ``mean_cost_per_image``, ``mean_latency_ms`` columns.
     """
+    import json as _json
+
+    results_dir = Path(results_dir)
     lb = leaderboard(results_dir)
     if lb.empty:
         return pd.DataFrame()
@@ -113,15 +124,28 @@ def cost_accuracy_table(results_dir: str | Path) -> pd.DataFrame:
         lb.groupby("model_id")
         .agg(
             mean_auroc=("auroc", "mean"),
-            mean_cost_per_image=(
-                "total_cost_usd",
-                lambda x: (x / lb.loc[x.index, "n_images"].replace(0, 1)).mean(),
-            ),
+            total_cost_usd=("total_cost_usd", "sum"),
+            n_images_total=("n_images", "sum"),
             mean_latency_ms=("mean_latency_ms", "mean"),
             backend=("backend", "first"),
         )
         .reset_index()
     )
+
+    # Apply actual-spend overrides
+    override_path = results_dir / "costs_override.json"
+    if override_path.exists():
+        try:
+            overrides = _json.loads(override_path.read_text())
+            for model_id, actual_cost in overrides.items():
+                mask = agg["model_id"] == model_id
+                if mask.any():
+                    agg.loc[mask, "total_cost_usd"] = float(actual_cost)
+        except Exception as exc:
+            log.warning("aggregator.override.error", error=str(exc))
+
+    agg["mean_cost_per_image"] = agg["total_cost_usd"] / agg["n_images_total"].replace(0, 1)
+    agg = agg.drop(columns=["n_images_total"])
     return agg.sort_values("mean_auroc", ascending=False)
 
 

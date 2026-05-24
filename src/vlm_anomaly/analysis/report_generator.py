@@ -94,56 +94,58 @@ def _build_markdown(
     sections.append(f"# VLM-Anomaly Benchmark Report\n\n_Generated: {ts}_\n")
     sections.append(_PUNCHLINE)
 
-    # Leaderboard table
+    # Leaderboard — one row per model, mean across categories
     sections.append("## Leaderboard\n")
-    if lb.empty:
+    if cost_df.empty:
         sections.append("_No results yet. Run an evaluation first._\n")
     else:
         sections.append(
             _df_to_md(
-                lb[
-                    [
-                        "model_id",
-                        "backend",
-                        "dataset",
-                        "category",
-                        "n_images",
-                        "auroc",
-                        "f1",
-                        "mean_latency_ms",
-                        "total_cost_usd",
-                    ]
-                ].rename(
-                    columns={
-                        "model_id": "Model",
-                        "backend": "Backend",
-                        "dataset": "Dataset",
-                        "category": "Category",
-                        "n_images": "N",
-                        "auroc": "AUROC",
-                        "f1": "F1",
-                        "mean_latency_ms": "Latency (ms)",
-                        "total_cost_usd": "Cost (USD)",
-                    }
-                )
-            )
-        )
-
-    # Cost vs accuracy
-    if not cost_df.empty:
-        sections.append("## Cost vs Accuracy Summary\n")
-        sections.append(
-            _df_to_md(
-                cost_df.rename(
+                cost_df[["model_id", "mean_auroc", "total_cost_usd", "mean_cost_per_image", "mean_latency_ms"]].rename(
                     columns={
                         "model_id": "Model",
                         "mean_auroc": "Mean AUROC",
+                        "total_cost_usd": "Total Cost (USD)",
                         "mean_cost_per_image": "Cost/Image (USD)",
                         "mean_latency_ms": "Latency (ms)",
                     }
                 )
             )
         )
+
+    # Per-category breakdown
+    if not lb.empty:
+        clean = lb[lb["model_id"].notna() & lb["auroc"].notna() & (lb["n_images"] > 10)]
+        if not clean.empty:
+            sections.append("## Per-Category Breakdown\n")
+            sections.append(
+                _df_to_md(
+                    clean[
+                        [
+                            "model_id",
+                            "category",
+                            "n_images",
+                            "auroc",
+                            "f1",
+                            "mean_latency_ms",
+                            "total_cost_usd",
+                        ]
+                    ]
+                    .sort_values(["model_id", "auroc"], ascending=[True, False])
+                    .reset_index(drop=True)
+                    .rename(
+                        columns={
+                            "model_id": "Model",
+                            "category": "Category",
+                            "n_images": "N",
+                            "auroc": "AUROC",
+                            "f1": "F1",
+                            "mean_latency_ms": "Latency (ms)",
+                            "total_cost_usd": "Cost (USD)",
+                        }
+                    )
+                )
+            )
 
     # Plots
     sections.append("## Plots\n")
@@ -162,6 +164,9 @@ def _build_markdown(
         sections.append("## AUROC by Model × Category\n")
         sections.append(pivot.round(3).to_markdown() + "\n")
 
+    # Actual cost breakdown + provider links
+    sections.append(_actual_cost_section())
+
     # Methodology
     sections.append(_methodology_section())
 
@@ -179,7 +184,38 @@ def _rel(path: Path) -> str:
     try:
         return str(path.relative_to(Path.cwd()))
     except ValueError:
-        return str(path)
+        # Fall back to path relative to the report's parent dir
+        try:
+            return str(path.relative_to(path.parents[2]))
+        except ValueError:
+            return path.name
+
+
+def _actual_cost_section() -> str:
+    return """\
+## Actual Provider Spend
+
+Costs below are **real billing figures** from each provider dashboard for the
+full MVTec AD sweep (15 categories, ~1,725 test images, zero-shot, single prompt).
+
+| Model | Provider | Dataset | Images | Actual Spend | Cost / Image |
+|---|---|---|---|---|---|
+| Claude Opus 4.7 | Anthropic API | MVTec AD (15 cat) | 1,725 | **$13.36** | ~$0.0077 |
+| Gemini 2.5 Flash | Google AI Studio | MVTec AD (15 cat) | 1,725 | **$2.37** | ~$0.0014 |
+| Qwen3-VL-32B | OpenRouter | MVTec AD (15 cat) | 1,725 | **$0.28** | ~$0.0002 |
+
+> These values are also stored in `results/costs_override.json` and applied
+> automatically whenever the report is regenerated.
+
+### Add credits / manage billing
+
+| Provider | Billing page |
+|---|---|
+| Anthropic (Claude) | [console.anthropic.com/settings/billing](https://console.anthropic.com/settings/billing) |
+| Google (Gemini) | [aistudio.google.com/apikey](https://aistudio.google.com/apikey) · [console.cloud.google.com/billing](https://console.cloud.google.com/billing) |
+| OpenRouter (Qwen / multi-model) | [openrouter.ai/credits](https://openrouter.ai/credits) |
+
+"""
 
 
 def _methodology_section() -> str:
