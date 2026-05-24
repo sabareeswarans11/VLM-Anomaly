@@ -85,7 +85,15 @@ class ClassicalEvaluator:
             image_size=self.image_size,
         )
 
-        engine = Engine(accelerator="cpu", devices=1, max_epochs=1)
+        # enable_model_summary=False prevents rich from recursing into deep
+        # backbone architectures (e.g. WideResNet50 in PatchCore) which causes
+        # RecursionError in rich's table renderer.
+        engine = Engine(
+            accelerator="cpu",
+            devices=1,
+            max_epochs=1,
+            enable_model_summary=False,
+        )
 
         t0 = time.perf_counter()
         engine.fit(model, datamodule=datamodule)

@@ -1,0 +1,17 @@
+[
+  {
+    "model_id": "classical/padim",
+    "backend": "anomalib",
+    "dataset": "mvtec",
+    "category": "screw",
+    "split": "test",
+    "n_images": 0,
+    "auroc": 0.8091822862625122,
+    "f1": 0.8709677457809448,
+    "precision": null,
+    "recall": null,
+    "pro_score": null,
+    "mean_latency_ms": 86570.70959699922,
+    "total_cost_usd": 0.0
+  }
+]

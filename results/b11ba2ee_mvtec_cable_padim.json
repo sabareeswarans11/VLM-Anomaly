@@ -1,0 +1,17 @@
+[
+  {
+    "model_id": "classical/padim",
+    "backend": "anomalib",
+    "dataset": "mvtec",
+    "category": "cable",
+    "split": "test",
+    "n_images": 0,
+    "auroc": 0.8764992356300354,
+    "f1": 0.8512820601463318,
+    "precision": null,
+    "recall": null,
+    "pro_score": null,
+    "mean_latency_ms": 89974.4917890057,
+    "total_cost_usd": 0.0
+  }
+]

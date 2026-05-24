@@ -1,0 +1,17 @@
+[
+  {
+    "model_id": "classical/padim",
+    "backend": "anomalib",
+    "dataset": "mvtec",
+    "category": "bottle",
+    "split": "test",
+    "n_images": 0,
+    "auroc": 0.9984127283096313,
+    "f1": 0.9841269850730896,
+    "precision": null,
+    "recall": null,
+    "pro_score": null,
+    "mean_latency_ms": 51083.680142008234,
+    "total_cost_usd": 0.0
+  }
+]

@@ -1,0 +1,17 @@
+[
+  {
+    "model_id": "classical/padim",
+    "backend": "anomalib",
+    "dataset": "mvtec",
+    "category": "carpet",
+    "split": "test",
+    "n_images": 0,
+    "auroc": 0.9911718368530273,
+    "f1": 0.9710982441902161,
+    "precision": null,
+    "recall": null,
+    "pro_score": null,
+    "mean_latency_ms": 87290.05551102455,
+    "total_cost_usd": 0.0
+  }
+]

@@ -1,0 +1,17 @@
+[
+  {
+    "model_id": "classical/padim",
+    "backend": "anomalib",
+    "dataset": "mvtec",
+    "category": "zipper",
+    "split": "test",
+    "n_images": 0,
+    "auroc": 0.8841912150382996,
+    "f1": 0.942148745059967,
+    "precision": null,
+    "recall": null,
+    "pro_score": null,
+    "mean_latency_ms": 73582.22885898431,
+    "total_cost_usd": 0.0
+  }
+]

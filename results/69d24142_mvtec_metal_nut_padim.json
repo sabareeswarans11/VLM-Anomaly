@@ -1,0 +1,17 @@
+[
+  {
+    "model_id": "classical/padim",
+    "backend": "anomalib",
+    "dataset": "mvtec",
+    "category": "metal_nut",
+    "split": "test",
+    "n_images": 0,
+    "auroc": 0.976050853729248,
+    "f1": 0.9617486596107483,
+    "precision": null,
+    "recall": null,
+    "pro_score": null,
+    "mean_latency_ms": 56939.2233369872,
+    "total_cost_usd": 0.0
+  }
+]

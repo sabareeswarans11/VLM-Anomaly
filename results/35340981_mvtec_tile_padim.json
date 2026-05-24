@@ -1,0 +1,17 @@
+[
+  {
+    "model_id": "classical/padim",
+    "backend": "anomalib",
+    "dataset": "mvtec",
+    "category": "tile",
+    "split": "test",
+    "n_images": 0,
+    "auroc": 0.918109655380249,
+    "f1": 0.9156626462936401,
+    "precision": null,
+    "recall": null,
+    "pro_score": null,
+    "mean_latency_ms": 64989.97292100103,
+    "total_cost_usd": 0.0
+  }
+]

@@ -1,0 +1,17 @@
+[
+  {
+    "model_id": "classical/padim",
+    "backend": "anomalib",
+    "dataset": "mvtec",
+    "category": "toothbrush",
+    "split": "test",
+    "n_images": 0,
+    "auroc": 0.8694444894790649,
+    "f1": 0.9032257795333862,
+    "precision": null,
+    "recall": null,
+    "pro_score": null,
+    "mean_latency_ms": 25280.388351995498,
+    "total_cost_usd": 0.0
+  }
+]

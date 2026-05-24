@@ -1,6 +1,6 @@
 # VLM-Anomaly Benchmark Report
 
-_Generated: 2026-05-24 04:24 UTC_
+_Generated: 2026-05-24 05:39 UTC_
 
 > **Frontier cloud VLMs reach ~95% of classical accuracy with zero training data,
 > at ~100× the cost and ~100× the latency. A 4-bit MiniCPM-V running fully
@@ -13,9 +13,10 @@ _Generated: 2026-05-24 04:24 UTC_
 
 | Model                                 |   Mean AUROC |   Total Cost (USD) |   Cost/Image (USD) |   Latency (ms) |
 |:--------------------------------------|-------------:|-------------------:|-------------------:|---------------:|
-| anthropic/claude-opus-4-7             |       0.7519 |             13.36  |         0.00774493 |        1080.1  |
-| gemini/gemini-2.5-flash               |       0.6104 |              2.37  |         0.00137391 |        3971.45 |
-| openrouter/qwen/qwen3-vl-32b-instruct |       0.1782 |              0.276 |         0.00016    |        2122.04 |
+| classical/padim                       |       0.9152 |              0     |             0      |       70872.7  |
+| anthropic/claude-opus-4-7             |       0.7519 |             13.36  |             0.0077 |        1080.1  |
+| gemini/gemini-2.5-flash               |       0.6104 |              2.37  |             0.0014 |        3971.45 |
+| openrouter/qwen/qwen3-vl-32b-instruct |       0.1782 |              0.276 |             0.0002 |        2122.04 |
 
 ## Per-Category Breakdown
 
@@ -86,22 +87,26 @@ _Generated: 2026-05-24 04:24 UTC_
 | model_id                              |   bottle |   cable |   capsule |   carpet |   grid |   hazelnut |   leather |   metal_nut |   pill |   screw |   tile |   toothbrush |   transistor |   wood |   zipper |
 |:--------------------------------------|---------:|--------:|----------:|---------:|-------:|-----------:|----------:|------------:|-------:|--------:|-------:|-------------:|-------------:|-------:|---------:|
 | anthropic/claude-opus-4-7             |    0.91  |   0.885 |     0.438 |    0.688 |  0.796 |      0.871 |     0.707 |       0.826 |  0.69  |   0.539 |  0.908 |        0.851 |        0.699 |  0.89  |    0.58  |
+| classical/padim                       |    0.997 |   0.876 |     0.886 |    0.991 |  0.886 |      0.737 |     0.998 |       0.976 |  0.89  |   0.809 |  0.918 |        0.869 |        0.969 |  0.959 |    0.884 |
 | gemini/gemini-2.5-flash               |    0.543 |   0.53  |     0.614 |    0.523 |  0.677 |      0.679 |     0.542 |       0.639 |  0.554 |   0.797 |  0.787 |        0.55  |        0.592 |  0.592 |    0.539 |
 | openrouter/qwen/qwen3-vl-32b-instruct |    0.209 |   0.349 |     0.149 |    0.05  |  0.055 |      0.299 |     0.013 |       0.097 |  0.482 |   0.138 |  0.023 |        0.153 |        0.339 |  0.025 |    0.293 |
 
 ## Actual Provider Spend
 
-Costs below are **real billing figures** from each provider dashboard for the
-full MVTec AD sweep (15 categories, ~1,725 test images, zero-shot, single prompt).
+Costs below are **real billing figures** for the full MVTec AD sweep
+(15 categories, ~1,725 test images).
 
-| Model | Provider | Dataset | Images | Actual Spend | Cost / Image |
-|---|---|---|---|---|---|
-| Claude Opus 4.7 | Anthropic API | MVTec AD (15 cat) | 1,725 | **$13.36** | ~$0.0077 |
-| Gemini 2.5 Flash | Google AI Studio | MVTec AD (15 cat) | 1,725 | **$2.37** | ~$0.0014 |
-| Qwen3-VL-32B | OpenRouter | MVTec AD (15 cat) | 1,725 | **$0.28** | ~$0.0002 |
+| Model | Type | Provider | Dataset | Images | Actual Spend | Cost / Image |
+|---|---|---|---|---|---|---|
+| PaDiM | Classical | Open Source ([Anomalib](https://github.com/openvinotoolkit/anomalib)) | MVTec AD (15 cat) | 1,725 | **$0.00** | $0 |
+| PatchCore | Classical | Open Source ([Anomalib](https://github.com/openvinotoolkit/anomalib)) | MVTec AD (15 cat) | 1,725 | **$0.00** | $0 |
+| Qwen3-VL-32B | Cloud VLM | OpenRouter | MVTec AD (15 cat) | 1,725 | **$0.28** | ~$0.0002 |
+| Gemini 2.5 Flash | Cloud VLM | Google AI Studio | MVTec AD (15 cat) | 1,725 | **$2.37** | ~$0.0014 |
+| Claude Opus 4.7 | Cloud VLM | Anthropic API | MVTec AD (15 cat) | 1,725 | **$13.36** | ~$0.0077 |
 
-> These values are also stored in `results/costs_override.json` and applied
-> automatically whenever the report is regenerated.
+> Cloud VLM costs are actual billing figures stored in `results/costs_override.json`
+> and applied automatically on report generation.
+> Classical baselines run fully on CPU — no API, no tokens, no cost.
 
 ### Add credits / manage billing
 

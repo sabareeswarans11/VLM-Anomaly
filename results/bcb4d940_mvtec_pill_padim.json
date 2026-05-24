@@ -1,0 +1,17 @@
+[
+  {
+    "model_id": "classical/padim",
+    "backend": "anomalib",
+    "dataset": "mvtec",
+    "category": "pill",
+    "split": "test",
+    "n_images": 0,
+    "auroc": 0.889798104763031,
+    "f1": 0.9466192126274109,
+    "precision": null,
+    "recall": null,
+    "pro_score": null,
+    "mean_latency_ms": 81243.20185201941,
+    "total_cost_usd": 0.0
+  }
+]

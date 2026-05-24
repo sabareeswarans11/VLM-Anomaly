@@ -1,0 +1,17 @@
+[
+  {
+    "model_id": "classical/padim",
+    "backend": "anomalib",
+    "dataset": "mvtec",
+    "category": "capsule",
+    "split": "test",
+    "n_images": 0,
+    "auroc": 0.8855205178260803,
+    "f1": 0.9469026327133179,
+    "precision": null,
+    "recall": null,
+    "pro_score": null,
+    "mean_latency_ms": 80306.61471601343,
+    "total_cost_usd": 0.0
+  }
+]

@@ -1,0 +1,17 @@
+[
+  {
+    "model_id": "classical/padim",
+    "backend": "anomalib",
+    "dataset": "mvtec",
+    "category": "leather",
+    "split": "test",
+    "n_images": 0,
+    "auroc": 0.9976222515106201,
+    "f1": 0.9836065769195557,
+    "precision": null,
+    "recall": null,
+    "pro_score": null,
+    "mean_latency_ms": 79811.03583201184,
+    "total_cost_usd": 0.0
+  }
+]

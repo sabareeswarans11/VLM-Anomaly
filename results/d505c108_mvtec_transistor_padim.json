@@ -1,0 +1,17 @@
+[
+  {
+    "model_id": "classical/padim",
+    "backend": "anomalib",
+    "dataset": "mvtec",
+    "category": "transistor",
+    "split": "test",
+    "n_images": 0,
+    "auroc": 0.96875,
+    "f1": 0.9047619104385376,
+    "precision": null,
+    "recall": null,
+    "pro_score": null,
+    "mean_latency_ms": 68474.60351901827,
+    "total_cost_usd": 0.0
+  }
+]

@@ -115,7 +115,7 @@ def _build_markdown(
 
     # Per-category breakdown
     if not lb.empty:
-        clean = lb[lb["model_id"].notna() & lb["auroc"].notna() & (lb["n_images"] > 10)]
+        clean = lb[lb["model_id"].notna() & lb["auroc"].notna() & ((lb["n_images"] > 10) | (lb["backend"] == "anomalib"))]
         if not clean.empty:
             sections.append("## Per-Category Breakdown\n")
             sections.append(

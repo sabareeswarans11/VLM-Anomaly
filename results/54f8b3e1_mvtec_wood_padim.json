@@ -1,0 +1,17 @@
+[
+  {
+    "model_id": "classical/padim",
+    "backend": "anomalib",
+    "dataset": "mvtec",
+    "category": "wood",
+    "split": "test",
+    "n_images": 0,
+    "auroc": 0.9587719440460205,
+    "f1": 0.9354838728904724,
+    "precision": null,
+    "recall": null,
+    "pro_score": null,
+    "mean_latency_ms": 63588.73511099955,
+    "total_cost_usd": 0.0
+  }
+]
