@@ -32,12 +32,12 @@ _API_URL = "https://api.anthropic.com/v1/messages"
 _ANTHROPIC_VERSION = "2023-06-01"
 
 # (price_in, price_out, price_cache_write, price_cache_read)
-# Cache write = 1.25× input price; cache read = 0.1× input price (Anthropic standard).
+# Cache write = 1.25x input price; cache read = 0.1x input price (Anthropic standard).
 _PRICES: dict[str, tuple[float, float, float, float]] = {
-    "claude-opus-4-6":          (0.000015, 0.000075, 0.00001875, 0.0000015),
-    "claude-opus-4-7":          (0.000015, 0.000075, 0.00001875, 0.0000015),
-    "claude-sonnet-4-6":        (0.000003, 0.000015, 0.00000375, 0.0000003),
-    "claude-haiku-4-5-20251001":(0.0000008, 0.000004, 0.000001,  0.00000008),
+    "claude-opus-4-6": (0.000015, 0.000075, 0.00001875, 0.0000015),
+    "claude-opus-4-7": (0.000015, 0.000075, 0.00001875, 0.0000015),
+    "claude-sonnet-4-6": (0.000003, 0.000015, 0.00000375, 0.0000003),
+    "claude-haiku-4-5-20251001": (0.0000008, 0.000004, 0.000001, 0.00000008),
 }
 
 BATCH_SIZE = 10
@@ -140,15 +140,15 @@ class AnthropicBackend(VLMBackend):
 
         raw = body["content"][0]["text"]
         usage = body.get("usage", {})
-        tokens_in        = usage.get("input_tokens", 0)
-        tokens_cache_w   = usage.get("cache_creation_input_tokens", 0)
-        tokens_cache_r   = usage.get("cache_read_input_tokens", 0)
-        tokens_out       = usage.get("output_tokens", 0)
+        tokens_in = usage.get("input_tokens", 0)
+        tokens_cache_w = usage.get("cache_creation_input_tokens", 0)
+        tokens_cache_r = usage.get("cache_read_input_tokens", 0)
+        tokens_out = usage.get("output_tokens", 0)
         cost = (
-            tokens_in      * self._price_in
+            tokens_in * self._price_in
             + tokens_cache_w * self._price_cache_write
             + tokens_cache_r * self._price_cache_read
-            + tokens_out     * self._price_out
+            + tokens_out * self._price_out
         )
 
         data, parse_error = parse_anomaly_prediction_dict(raw)
@@ -254,15 +254,15 @@ class AnthropicBackend(VLMBackend):
 
         raw = body["content"][0]["text"]
         usage = body.get("usage", {})
-        tokens_in      = usage.get("input_tokens", 0)
+        tokens_in = usage.get("input_tokens", 0)
         tokens_cache_w = usage.get("cache_creation_input_tokens", 0)
         tokens_cache_r = usage.get("cache_read_input_tokens", 0)
-        tokens_out     = usage.get("output_tokens", 0)
+        tokens_out = usage.get("output_tokens", 0)
         total_cost = (
-            tokens_in      * self._price_in
+            tokens_in * self._price_in
             + tokens_cache_w * self._price_cache_write
             + tokens_cache_r * self._price_cache_read
-            + tokens_out     * self._price_out
+            + tokens_out * self._price_out
         )
         cost_per_img = total_cost / n
 

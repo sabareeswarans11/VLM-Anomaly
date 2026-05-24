@@ -200,7 +200,7 @@ def _build_model(name: str):
 def _build_datamodule(dataset_name: str, category: str, data_root: Path, image_size: int):
     # anomalib 2.x uses MVTecAD (not MVTec) and no image_size param.
     # Resize is handled via augmentations.
-    import torchvision.transforms.v2 as T
+    import torchvision.transforms.v2 as T  # noqa: N812
 
     aug = T.Resize((image_size, image_size), antialias=True)
 

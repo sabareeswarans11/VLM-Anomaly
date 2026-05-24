@@ -101,7 +101,15 @@ def _build_markdown(
     else:
         sections.append(
             _df_to_md(
-                cost_df[["model_id", "mean_auroc", "total_cost_usd", "mean_cost_per_image", "mean_latency_ms"]].rename(
+                cost_df[
+                    [
+                        "model_id",
+                        "mean_auroc",
+                        "total_cost_usd",
+                        "mean_cost_per_image",
+                        "mean_latency_ms",
+                    ]
+                ].rename(
                     columns={
                         "model_id": "Model",
                         "mean_auroc": "Mean AUROC",
@@ -115,7 +123,11 @@ def _build_markdown(
 
     # Per-category breakdown
     if not lb.empty:
-        clean = lb[lb["model_id"].notna() & lb["auroc"].notna() & ((lb["n_images"] > 10) | (lb["backend"] == "anomalib"))]
+        clean = lb[
+            lb["model_id"].notna()
+            & lb["auroc"].notna()
+            & ((lb["n_images"] > 10) | (lb["backend"] == "anomalib"))
+        ]
         if not clean.empty:
             sections.append("## Per-Category Breakdown\n")
             sections.append(

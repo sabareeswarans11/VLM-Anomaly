@@ -45,10 +45,7 @@ _SYSTEM_PROMPT = (
     "then output ONLY a single valid JSON object — no markdown, no explanation, no extra text."
 )
 
-_INSTRUCTION = (
-    "Read the image file at this path: {image_path}\n\n"
-    "{prompt}"
-)
+_INSTRUCTION = "Read the image file at this path: {image_path}\n\n{prompt}"
 
 
 class ClaudeCliBackend(VLMBackend):
@@ -96,11 +93,15 @@ class ClaudeCliBackend(VLMBackend):
         cmd = [
             self._cli,
             "--print",
-            "--output-format", "json",
-            "--model", self.model,
-            "--allowedTools", "Read",
+            "--output-format",
+            "json",
+            "--model",
+            self.model,
+            "--allowedTools",
+            "Read",
             "--no-session-persistence",
-            "--system-prompt", _SYSTEM_PROMPT,
+            "--system-prompt",
+            _SYSTEM_PROMPT,
             full_prompt,
         ]
 
@@ -120,6 +121,7 @@ class ClaudeCliBackend(VLMBackend):
                 text=True,
                 timeout=self.timeout,
                 env=subprocess_env,
+                check=False,
             )
         except subprocess.TimeoutExpired:
             log.warning("claude_cli.timeout", image=str(image), timeout=self.timeout)
@@ -189,7 +191,9 @@ class ClaudeCliBackend(VLMBackend):
 # ---------------------------------------------------------------------------
 
 
-def _error_prediction(image: Path, reason: str, cost_usd: float, latency_ms: float) -> AnomalyPrediction:
+def _error_prediction(
+    image: Path, reason: str, cost_usd: float, latency_ms: float
+) -> AnomalyPrediction:
     return AnomalyPrediction(
         image_path=image,
         is_anomalous=False,
