@@ -32,6 +32,25 @@ ModelName = Literal["padim", "patchcore", "efficientad", "stfpm"]
 _MODEL_NAMES: set[str] = {"padim", "patchcore", "efficientad", "stfpm"}
 
 
+def best_accelerator() -> str:
+    """Return the best accelerator Lightning supports on this machine.
+
+    Uses Lightning's own accelerator checks rather than PyTorch's — on Intel
+    Macs with AMD GPUs, ``torch.backends.mps.is_available()`` returns True but
+    Lightning's ``MPSAccelerator`` rejects it (Apple Silicon only).
+    """
+    try:
+        from lightning.pytorch.accelerators import CUDAAccelerator, MPSAccelerator
+
+        if CUDAAccelerator.is_available():
+            return "gpu"
+        if MPSAccelerator.is_available():
+            return "mps"
+    except Exception:
+        pass
+    return "cpu"
+
+
 class ClassicalEvaluator:
     """Run a classical Anomalib baseline and return an ``EvalResult``.
 
