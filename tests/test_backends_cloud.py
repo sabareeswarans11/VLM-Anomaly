@@ -459,5 +459,3 @@ def test_anthropic_live(sample_normal_image: Path) -> None:
     b = AnthropicBackend(api_key=key)
     p = b.predict(sample_normal_image, "Is there a defect? Reply with JSON.")
     assert isinstance(p, AnomalyPrediction)
-
-

@@ -97,14 +97,14 @@ class PromptLibrary:
             data: Any = yaml.safe_load(f)
 
         if not isinstance(data, dict):
-            raise ValueError(f"Expected a YAML mapping in {path.name}, got {type(data).__name__}")
+            return  # skip non-mapping YAML files (e.g. config / enhanced eval YAMLs)
 
         name = data.get("name")
         if not name:
-            raise ValueError(f"Missing 'name' key in {path.name}")
+            return  # skip files without a 'name' key (e.g. claude_opus_enhanced.yaml)
 
         variants = data.get("variants")
         if not isinstance(variants, dict):
-            raise ValueError(f"Missing or invalid 'variants' key in {path.name}")
+            return  # skip files without a valid 'variants' dict
 
         self._prompts[name] = {k: str(v) for k, v in variants.items()}

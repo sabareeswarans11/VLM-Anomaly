@@ -1,0 +1,389 @@
+# claude_opus_enhanced.yaml
+# Category-specific 4-prompt ensembles + reference-image config for
+# the few-shot enhanced Claude Opus evaluation (fewshot2-ens4).
+#
+# Each category defines:
+#   ref_indices: [i, j]  — indices into sorted(train/good/) for the 2 reference images
+#   system:              — system message placed before reference images (cached)
+#   prompts:             — list of 4 user-level scoring prompts
+#
+# Prompt philosophy (research-backed):
+#   P1 expert    — domain vocabulary + known defect taxonomy
+#   P2 compare   — explicit comparison to the provided reference images
+#   P3 cot       — chain-of-thought: describe → analyse → decide
+#   P4 negative  — what should be present; does this image FAIL those standards?
+
+categories:
+
+  capsule:
+    ref_indices: [0, "mid"]   # mid = len(train/good)//2
+    system: |
+      You are a pharmaceutical quality control expert inspecting hard-shell capsules.
+      The first two images (REF-1, REF-2) are REFERENCE images of defect-free, acceptable capsules.
+      Use them as the quality standard when evaluating subsequent test images.
+    prompts:
+      - id: expert
+        text: |
+          Inspect this capsule for pharmaceutical defects.
+          Known defect types: hairline surface cracks, faulty or smeared imprint text,
+          mechanical deformation (squeeze/dent), poke damage, and scratch marks on the body.
+          Pay special attention to the body-cap junction — this is where cracks initiate.
+          Reply ONLY with valid JSON:
+          {"is_anomalous": <bool>, "confidence": <0–1 float>, "description": "<detail>", "defect_type": "<type or null>"}
+
+      - id: compare
+        text: |
+          Compare this test capsule to REF-1 and REF-2 above.
+          Examine: (1) surface smoothness — any scratches or cracks? (2) imprint clarity
+          — is the text/logo complete and legible? (3) body-cap junction — any separation
+          or crack? (4) overall shape — any dent or deformation?
+          State any deviation from the reference standard.
+          Reply ONLY with valid JSON:
+          {"is_anomalous": <bool>, "confidence": <0–1 float>, "description": "<detail>", "defect_type": "<type or null>"}
+
+      - id: cot
+        text: |
+          Work through these steps for this capsule image:
+          Step 1 — Describe the surface finish (smooth, matte, any visible marks).
+          Step 2 — Examine the imprint: is the text/logo crisp and complete?
+          Step 3 — Inspect the body-cap junction for cracks or misalignment.
+          Step 4 — Compare to REF-1 and REF-2: does this match their quality?
+          Step 5 — Conclude: is this capsule acceptable or defective?
+          Reply ONLY with valid JSON:
+          {"is_anomalous": <bool>, "confidence": <0–1 float>, "description": "<detail>", "defect_type": "<type or null>"}
+
+      - id: negative
+        text: |
+          A defect-free capsule MUST have ALL of: smooth unblemished surface,
+          clear and complete imprint with no smearing, intact body-cap junction
+          with no cracks, and no deformation or foreign marks.
+          Referencing REF-1 and REF-2 as the acceptable standard — does this capsule
+          FAIL any of these requirements?
+          Reply ONLY with valid JSON:
+          {"is_anomalous": <bool>, "confidence": <0–1 float>, "description": "<detail>", "defect_type": "<type or null>"}
+
+  screw:
+    ref_indices: [0, "mid"]
+    system: |
+      You are a precision hardware quality inspector examining metal screws.
+      REF-1 and REF-2 show NORMAL, defect-free screws — use them as the quality standard.
+    prompts:
+      - id: expert
+        text: |
+          Inspect this screw for manufacturing defects.
+          Known defect types: scratches on the head (radial or circular marks),
+          scratch or gouge on the neck/shaft, thread deformation or manipulation
+          (flattened, crossed, or missing threads), and tip damage.
+          Threads should be sharp, evenly spaced, and helical.
+          Reply ONLY with valid JSON:
+          {"is_anomalous": <bool>, "confidence": <0–1 float>, "description": "<detail>", "defect_type": "<type or null>"}
+
+      - id: compare
+        text: |
+          Compare this test screw to REF-1 and REF-2.
+          Check: (1) head surface — any radial or circular scratch marks?
+          (2) thread helix — uniform pitch, no flattened or missing threads?
+          (3) neck/shaft — any gouge, scoring, or abrasion?
+          (4) tip — intact, no damage?
+          Reply ONLY with valid JSON:
+          {"is_anomalous": <bool>, "confidence": <0–1 float>, "description": "<detail>", "defect_type": "<type or null>"}
+
+      - id: cot
+        text: |
+          Analyse this screw step by step:
+          Step 1 — Examine the head: describe the surface finish and note any scratches.
+          Step 2 — Trace the thread: is the helix continuous, sharp, and evenly spaced?
+          Step 3 — Inspect the neck and shaft for abrasions or scoring.
+          Step 4 — Compare against REF-1 and REF-2 for any deviations.
+          Step 5 — Is this screw acceptable for use?
+          Reply ONLY with valid JSON:
+          {"is_anomalous": <bool>, "confidence": <0–1 float>, "description": "<detail>", "defect_type": "<type or null>"}
+
+      - id: negative
+        text: |
+          A defect-free screw must have: an unmarked head with no scratches,
+          a continuous helical thread with uniform pitch and no deformation,
+          a clean neck/shaft with no gouges, and an intact tip.
+          Using REF-1 and REF-2 as reference — does this screw FAIL any standard?
+          Reply ONLY with valid JSON:
+          {"is_anomalous": <bool>, "confidence": <0–1 float>, "description": "<detail>", "defect_type": "<type or null>"}
+
+  zipper:
+    ref_indices: [0, "mid"]
+    system: |
+      You are a garment hardware inspector examining metal/plastic zippers.
+      REF-1 and REF-2 show NORMAL, defect-free zippers — use them as the quality standard.
+    prompts:
+      - id: expert
+        text: |
+          Inspect this zipper for manufacturing defects.
+          Known defect types: broken teeth (missing or cracked), squeezed teeth
+          (deformed, compressed), split teeth (teeth not interlocking), rough surface
+          (burrs, sharp edges), misaligned fabric border, and loose string/thread.
+          Teeth should be evenly spaced, aligned, and fully intact along the entire length.
+          Reply ONLY with valid JSON:
+          {"is_anomalous": <bool>, "confidence": <0–1 float>, "description": "<detail>", "defect_type": "<type or null>"}
+
+      - id: compare
+        text: |
+          Compare this test zipper to REF-1 and REF-2.
+          Examine: (1) tooth row — are all teeth present, evenly spaced, and aligned?
+          (2) tooth shape — any squeezed, broken, or split teeth?
+          (3) fabric border — straight, undamaged, no fraying?
+          (4) overall smoothness — no rough burrs or displaced elements?
+          Reply ONLY with valid JSON:
+          {"is_anomalous": <bool>, "confidence": <0–1 float>, "description": "<detail>", "defect_type": "<type or null>"}
+
+      - id: cot
+        text: |
+          Analyse this zipper systematically:
+          Step 1 — Scan the tooth row from top to bottom: count any gaps, broken,
+                   or deformed teeth.
+          Step 2 — Examine tooth alignment: are adjacent teeth properly paired?
+          Step 3 — Inspect the fabric tape border for fraying or misalignment.
+          Step 4 — Compare to REF-1 and REF-2 for overall conformance.
+          Step 5 — Conclude: acceptable or defective?
+          Reply ONLY with valid JSON:
+          {"is_anomalous": <bool>, "confidence": <0–1 float>, "description": "<detail>", "defect_type": "<type or null>"}
+
+      - id: negative
+        text: |
+          A defect-free zipper requires: all teeth present and undamaged,
+          uniform tooth spacing and alignment, no broken or squeezed teeth,
+          intact fabric border, and a smooth surface with no burrs.
+          Using REF-1 and REF-2 — does this zipper FAIL any of these standards?
+          Reply ONLY with valid JSON:
+          {"is_anomalous": <bool>, "confidence": <0–1 float>, "description": "<detail>", "defect_type": "<type or null>"}
+
+  carpet:
+    ref_indices: [0, "mid"]
+    system: |
+      You are a textile quality inspector examining woven carpet samples.
+      REF-1 and REF-2 show NORMAL, defect-free carpet — use them as the quality standard.
+    prompts:
+      - id: expert
+        text: |
+          Inspect this carpet sample for weaving defects.
+          Known defect types: color anomaly (discolored patch or stain), cut (severed
+          fibres), hole (missing fibres creating void), metal contamination (foreign
+          metallic particle embedded), and thread defect (loose or pulled thread).
+          The weave should be uniform in density, colour, and fibre length throughout.
+          Reply ONLY with valid JSON:
+          {"is_anomalous": <bool>, "confidence": <0–1 float>, "description": "<detail>", "defect_type": "<type or null>"}
+
+      - id: compare
+        text: |
+          Compare this carpet to REF-1 and REF-2.
+          Look for: (1) color uniformity — any discolored patches vs. the reference?
+          (2) structural integrity — any holes, cuts, or missing fibres?
+          (3) surface contamination — any foreign material embedded in the weave?
+          (4) fibre consistency — any pulled or loose threads disrupting the pattern?
+          Reply ONLY with valid JSON:
+          {"is_anomalous": <bool>, "confidence": <0–1 float>, "description": "<detail>", "defect_type": "<type or null>"}
+
+      - id: cot
+        text: |
+          Examine this carpet sample step by step:
+          Step 1 — Describe the overall weave pattern and base colour.
+          Step 2 — Scan for colour deviations: any patches lighter, darker, or stained?
+          Step 3 — Look for structural breaks: holes, cuts, or sparse areas.
+          Step 4 — Check for foreign objects or metallic glints in the weave.
+          Step 5 — Compare to REF-1 and REF-2: does this meet the same standard?
+          Reply ONLY with valid JSON:
+          {"is_anomalous": <bool>, "confidence": <0–1 float>, "description": "<detail>", "defect_type": "<type or null>"}
+
+      - id: negative
+        text: |
+          A defect-free carpet must have: consistent colour with no stains or patches,
+          uniform fibre density with no holes or cuts, no foreign material embedded,
+          and no loose or pulled threads.
+          Using REF-1 and REF-2 as standard — does this carpet FAIL any requirement?
+          Reply ONLY with valid JSON:
+          {"is_anomalous": <bool>, "confidence": <0–1 float>, "description": "<detail>", "defect_type": "<type or null>"}
+
+  pill:
+    ref_indices: [0, "mid"]
+    system: |
+      You are a pharmaceutical quality inspector examining solid-dose tablet pills.
+      REF-1 and REF-2 show NORMAL, defect-free pills — use them as the quality standard.
+    prompts:
+      - id: expert
+        text: |
+          Inspect this pill for pharmaceutical defects.
+          Known defect types: color anomaly (off-color or stained region), surface crack,
+          faulty imprint (smeared, incomplete, or missing logo/text), scratch or abrasion,
+          mechanical deformation (squeeze/dent), and contamination (foreign particle).
+          Colour should be uniform; surface smooth; imprint crisp.
+          Reply ONLY with valid JSON:
+          {"is_anomalous": <bool>, "confidence": <0–1 float>, "description": "<detail>", "defect_type": "<type or null>"}
+
+      - id: compare
+        text: |
+          Compare this test pill to REF-1 and REF-2.
+          Assess: (1) colour uniformity — any patches or discolouration vs. reference?
+          (2) surface condition — scratches, cracks, or rough areas?
+          (3) imprint quality — is text/logo as clear and complete as the references?
+          (4) shape integrity — any deformation, chip, or contamination?
+          Reply ONLY with valid JSON:
+          {"is_anomalous": <bool>, "confidence": <0–1 float>, "description": "<detail>", "defect_type": "<type or null>"}
+
+      - id: cot
+        text: |
+          Evaluate this pill step by step:
+          Step 1 — Describe the overall colour and compare to the reference images.
+          Step 2 — Examine the surface: any scratches, cracks, or rough areas?
+          Step 3 — Check the imprint: is text/logo legible and complete?
+          Step 4 — Look for contamination, chips, or deformation.
+          Step 5 — Is this pill within acceptable quality limits?
+          Reply ONLY with valid JSON:
+          {"is_anomalous": <bool>, "confidence": <0–1 float>, "description": "<detail>", "defect_type": "<type or null>"}
+
+      - id: negative
+        text: |
+          A defect-free pill requires: uniform colour throughout, smooth surface with
+          no scratches or cracks, crisp and complete imprint, correct shape with no
+          deformation, and no foreign contamination.
+          Using REF-1 and REF-2 as reference — does this pill FAIL any standard?
+          Reply ONLY with valid JSON:
+          {"is_anomalous": <bool>, "confidence": <0–1 float>, "description": "<detail>", "defect_type": "<type or null>"}
+
+  transistor:
+    ref_indices: [0, "mid"]
+    system: |
+      You are an electronics quality inspector examining through-hole transistors.
+      REF-1 and REF-2 show NORMAL, defect-free transistors — use them as the standard.
+    prompts:
+      - id: expert
+        text: |
+          Inspect this transistor for assembly defects.
+          Known defect types: bent lead (one or more pins not straight), cut lead
+          (lead shorter than expected or severed), damaged case (crack, chip, or
+          deformation in the plastic body), and misplaced component (rotated or
+          shifted relative to normal orientation).
+          All three leads should be straight, parallel, and equal length.
+          Reply ONLY with valid JSON:
+          {"is_anomalous": <bool>, "confidence": <0–1 float>, "description": "<detail>", "defect_type": "<type or null>"}
+
+      - id: compare
+        text: |
+          Compare this transistor to REF-1 and REF-2.
+          Check: (1) lead geometry — are all three leads straight and parallel as in
+          the references? (2) lead length — any lead shorter or longer than reference?
+          (3) case integrity — any crack, chip, or dent on the body?
+          (4) positioning — is the component orientation correct?
+          Reply ONLY with valid JSON:
+          {"is_anomalous": <bool>, "confidence": <0–1 float>, "description": "<detail>", "defect_type": "<type or null>"}
+
+      - id: cot
+        text: |
+          Analyse this transistor step by step:
+          Step 1 — Examine each lead individually: straight, bent, or cut?
+          Step 2 — Compare lead lengths to REF-1 and REF-2: are they equal?
+          Step 3 — Inspect the plastic case: any cracks, chips, or deformation?
+          Step 4 — Verify orientation matches the reference images.
+          Step 5 — Is this transistor acceptable for PCB assembly?
+          Reply ONLY with valid JSON:
+          {"is_anomalous": <bool>, "confidence": <0–1 float>, "description": "<detail>", "defect_type": "<type or null>"}
+
+      - id: negative
+        text: |
+          A defect-free transistor must have: all three leads perfectly straight
+          and equal length, an undamaged plastic case with no cracks or chips,
+          and correct orientation matching the standard position.
+          Using REF-1 and REF-2 — does this transistor FAIL any of these requirements?
+          Reply ONLY with valid JSON:
+          {"is_anomalous": <bool>, "confidence": <0–1 float>, "description": "<detail>", "defect_type": "<type or null>"}
+
+  leather:
+    ref_indices: [0, "mid"]
+    system: |
+      You are a leather goods quality inspector examining hide/leather samples.
+      REF-1 and REF-2 show NORMAL, defect-free leather — use them as the quality standard.
+    prompts:
+      - id: expert
+        text: |
+          Inspect this leather sample for surface defects.
+          Known defect types: color anomaly (discolored patch), cut (incision or slice
+          in the surface), fold crease (permanent deformation line), glue residue
+          (sticky or dried adhesive on surface), and poke damage (puncture or perforation).
+          Surface should be uniform in colour and texture with no interruptions.
+          Reply ONLY with valid JSON:
+          {"is_anomalous": <bool>, "confidence": <0–1 float>, "description": "<detail>", "defect_type": "<type or null>"}
+
+      - id: compare
+        text: |
+          Compare this leather sample to REF-1 and REF-2.
+          Examine: (1) colour uniformity — any discolored patches compared to reference?
+          (2) surface integrity — any cuts, punctures, or depressions?
+          (3) fold lines — any crease or permanent deformation?
+          (4) contamination — any adhesive residue or foreign material on surface?
+          Reply ONLY with valid JSON:
+          {"is_anomalous": <bool>, "confidence": <0–1 float>, "description": "<detail>", "defect_type": "<type or null>"}
+
+      - id: cot
+        text: |
+          Evaluate this leather sample step by step:
+          Step 1 — Describe the overall surface texture and colour.
+          Step 2 — Scan for colour deviations: patches lighter, darker, or stained?
+          Step 3 — Look for physical damage: cuts, punctures, fold lines, or depressions.
+          Step 4 — Check for surface contamination: glue, residue, or foreign material.
+          Step 5 — Comparing to REF-1 and REF-2: acceptable or defective?
+          Reply ONLY with valid JSON:
+          {"is_anomalous": <bool>, "confidence": <0–1 float>, "description": "<detail>", "defect_type": "<type or null>"}
+
+      - id: negative
+        text: |
+          A defect-free leather sample must have: uniform colour with no discoloration,
+          smooth unbroken surface with no cuts or punctures, no fold creases,
+          and no adhesive or foreign material on the surface.
+          Using REF-1 and REF-2 as standard — does this leather FAIL any requirement?
+          Reply ONLY with valid JSON:
+          {"is_anomalous": <bool>, "confidence": <0–1 float>, "description": "<detail>", "defect_type": "<type or null>"}
+
+  grid:
+    ref_indices: [0, "mid"]
+    system: |
+      You are a textile quality inspector examining woven metal/fibre grid fabric.
+      REF-1 and REF-2 show NORMAL, defect-free grid fabric — use them as the standard.
+    prompts:
+      - id: expert
+        text: |
+          Inspect this woven grid fabric for weaving defects.
+          Known defect types: bent thread (thread curved from its straight path),
+          broken thread (thread severed creating a gap in the weave), glue residue
+          (adhesive contamination on threads), hole (missing threads creating void),
+          and metal contamination (foreign particle embedded in weave).
+          The grid must have perfectly regular, orthogonal thread spacing throughout.
+          Reply ONLY with valid JSON:
+          {"is_anomalous": <bool>, "confidence": <0–1 float>, "description": "<detail>", "defect_type": "<type or null>"}
+
+      - id: compare
+        text: |
+          Compare this grid fabric to REF-1 and REF-2.
+          Look for: (1) thread regularity — any deviant, bent, or missing threads?
+          (2) mesh openings — uniform size and spacing throughout?
+          (3) structural breaks — any holes or gaps in the weave?
+          (4) surface cleanliness — any glue spots, metallic particles, or contamination?
+          Reply ONLY with valid JSON:
+          {"is_anomalous": <bool>, "confidence": <0–1 float>, "description": "<detail>", "defect_type": "<type or null>"}
+
+      - id: cot
+        text: |
+          Evaluate this grid fabric step by step:
+          Step 1 — Describe the overall weave pattern and thread regularity.
+          Step 2 — Scan horizontally: are all horizontal threads straight and intact?
+          Step 3 — Scan vertically: are all vertical threads straight and intact?
+          Step 4 — Check mesh openings: any irregular or enlarged gaps suggesting
+                   broken/missing threads?
+          Step 5 — Compare to REF-1 and REF-2: does this meet the standard?
+          Reply ONLY with valid JSON:
+          {"is_anomalous": <bool>, "confidence": <0–1 float>, "description": "<detail>", "defect_type": "<type or null>"}
+
+      - id: negative
+        text: |
+          A defect-free grid fabric must have: all threads perfectly straight and
+          unbroken, uniform orthogonal mesh with no irregular openings or voids,
+          and a clean surface with no foreign material or adhesive residue.
+          Using REF-1 and REF-2 as reference — does this grid FAIL any standard?
+          Reply ONLY with valid JSON:
+          {"is_anomalous": <bool>, "confidence": <0–1 float>, "description": "<detail>", "defect_type": "<type or null>"}

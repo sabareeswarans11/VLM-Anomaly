@@ -33,12 +33,12 @@ _API_BASE = "https://generativelanguage.googleapis.com/v1beta/models"
 # effective rate than the API's promptTokenCount suggests (image tiling overhead not
 # reflected in token count). Values derived from observed $2.37 spend / 1725 images.
 _PRICES: dict[str, tuple[float, float]] = {
-    "gemini-2.5-flash":              (0.000007, 0.0000006),
-    "gemini-2.5-flash-preview-05-20":(0.000007, 0.0000006),
-    "gemini-2.5-pro":                (0.00000125, 0.000005),
-    "gemini-2.5-pro-preview-05-06":  (0.00000125, 0.000005),
-    "gemini-2.0-flash":              (0.00000010, 0.00000030),
-    "gemini-2.0-flash-001":          (0.00000010, 0.00000030),
+    "gemini-2.5-flash": (0.000007, 0.0000006),
+    "gemini-2.5-flash-preview-05-20": (0.000007, 0.0000006),
+    "gemini-2.5-pro": (0.00000125, 0.000005),
+    "gemini-2.5-pro-preview-05-06": (0.00000125, 0.000005),
+    "gemini-2.0-flash": (0.00000010, 0.00000030),
+    "gemini-2.0-flash-001": (0.00000010, 0.00000030),
 }
 
 # Free-tier floor: 4.5s → ~13 req/min, under the 15 RPM limit.

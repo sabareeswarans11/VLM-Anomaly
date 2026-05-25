@@ -40,7 +40,7 @@ _PRICES: dict[str, tuple[float, float, float, float]] = {
     "claude-haiku-4-5-20251001": (0.0000008, 0.000004, 0.000001, 0.00000008),
 }
 
-BATCH_SIZE = 10
+BATCH_SIZE = 20
 
 # 2 s proactive floor — conservative for free-tier TPM budgets.
 _MIN_INTERVAL_S: float = 2.0
@@ -306,12 +306,178 @@ class AnthropicBackend(VLMBackend):
         return results
 
     # ------------------------------------------------------------------
+    # Few-shot batched interface — reference images cached in system message
+    # ------------------------------------------------------------------
+
+    def predict_batch_with_refs(
+        self,
+        ref_images: list[Path],
+        images: list[Path],
+        system_text: str,
+        prompt: str,
+    ) -> list[AnomalyPrediction]:
+        """Classify ``images`` with normal reference images cached in the system message.
+
+        Reference images are injected into the system message with
+        ``cache_control: {"type": "ephemeral"}`` so that repeat calls within
+        the 5-minute Anthropic cache TTL avoid re-uploading them.  This cuts
+        input token costs to ~0.1× for the reference-image portion.
+
+        Args:
+            ref_images: 1–2 normal (defect-free) reference image paths.
+            images: Test image paths to classify (max ``BATCH_SIZE``).
+            system_text: Category-specific system message (from enhanced YAML).
+            prompt: One of the 4 ensemble prompt strings for this category.
+
+        Returns:
+            One :class:`AnomalyPrediction` per input image, in order.
+        """
+        if not self.api_key:
+            raise ValueError("ANTHROPIC_API_KEY is not set.")
+        _wait_for_rate_limit()
+        return self._run(
+            self._async_predict_batch_with_refs(ref_images, images, system_text, prompt)
+        )
+
+    @retry(
+        stop=stop_after_attempt(6), wait=wait_exponential(multiplier=2, min=5, max=60), reraise=True
+    )
+    async def _async_predict_batch_with_refs(
+        self,
+        ref_images: list[Path],
+        images: list[Path],
+        system_text: str,
+        prompt: str,
+    ) -> list[AnomalyPrediction]:
+        n = len(images)
+        t0 = time.perf_counter()
+
+        # ── User message: ref images first (cached prefix), then test images ──
+        # NOTE: Anthropic's system field is text-only; images must go in messages.
+        # cache_control on the last ref block caches everything up to that point,
+        # so subsequent calls with the same refs only pay 0.1x token cost for them.
+        content: list[dict] = []
+        for idx, ref_path in enumerate(ref_images):
+            ref_b64 = image_to_base64(ref_path)
+            content.append(
+                {
+                    "type": "image",
+                    "source": {"type": "base64", "media_type": "image/jpeg", "data": ref_b64},
+                }
+            )
+            is_last = idx == len(ref_images) - 1
+            label_block: dict = {
+                "type": "text",
+                "text": f"REF-{idx + 1}: defect-free normal sample.",
+            }
+            if is_last:
+                # Cache breakpoint — everything up to here is the reusable prefix.
+                label_block["cache_control"] = {"type": "ephemeral"}
+            content.append(label_block)
+
+        # ── Test images (uncached suffix — changes every batch) ───────────────
+        for i, img_path in enumerate(images):
+            b64 = image_to_base64(img_path)
+            content.append(
+                {
+                    "type": "image",
+                    "source": {"type": "base64", "media_type": "image/jpeg", "data": b64},
+                }
+            )
+            content.append({"type": "text", "text": f"[{i + 1}]"})
+
+        content.append(
+            {
+                "type": "text",
+                "text": (
+                    f"{prompt}\n\n"
+                    f"For each of the {n} numbered images above, output a JSON array of exactly {n} objects:\n"
+                    f'[{{"id":1,"is_anomalous":bool,"confidence":float,"defect_type":str_or_null,"description":str}}, ...]\n'
+                    f"JSON array only."
+                ),
+            }
+        )
+
+        payload = {
+            "model": self.model,
+            "max_tokens": max(400, n * 80),
+            "system": system_text,
+            "messages": [{"role": "user", "content": content}],
+        }
+
+        headers = self._headers(cache=True)
+        async with self._make_client(timeout=180.0) as client:
+            resp = await client.post(_API_URL, json=payload, headers=headers)
+        latency_ms = (time.perf_counter() - t0) * 1000
+
+        if resp.status_code == 429:
+            retry_after = min(float(resp.headers.get("retry-after", 30)), 60.0)
+            log.warning("anthropic.rate_limited", retry_after_s=retry_after, model=self.model)
+            await asyncio.sleep(retry_after)
+            resp.raise_for_status()
+
+        resp.raise_for_status()
+        body = resp.json()
+
+        raw = body["content"][0]["text"]
+        usage = body.get("usage", {})
+        tokens_in = usage.get("input_tokens", 0)
+        tokens_cache_w = usage.get("cache_creation_input_tokens", 0)
+        tokens_cache_r = usage.get("cache_read_input_tokens", 0)
+        tokens_out = usage.get("output_tokens", 0)
+        total_cost = (
+            tokens_in * self._price_in
+            + tokens_cache_w * self._price_cache_write
+            + tokens_cache_r * self._price_cache_read
+            + tokens_out * self._price_out
+        )
+        cost_per_img = total_cost / n
+
+        parsed = parse_batch_response(raw, n)
+        log.info(
+            "anthropic.predict_batch_with_refs",
+            model=self.model,
+            batch_size=n,
+            n_refs=len(ref_images),
+            latency_ms=round(latency_ms),
+            tokens_in=tokens_in,
+            tokens_cache_w=tokens_cache_w,
+            tokens_cache_r=tokens_cache_r,
+            tokens_out=tokens_out,
+            cost_usd=round(total_cost, 5),
+            parse_errors=sum(1 for _, err in parsed if err),
+        )
+
+        results = []
+        for img_path, (data, parse_error) in zip(images, parsed):
+            results.append(
+                AnomalyPrediction(
+                    image_path=img_path,
+                    is_anomalous=data.get("is_anomalous", False),
+                    confidence=data.get("confidence", 0.0),
+                    description=data.get("description", ""),
+                    defect_type=data.get("defect_type"),
+                    regions=data.get("regions", []),
+                    raw_response=raw,
+                    latency_ms=latency_ms / n,
+                    cost_usd=cost_per_img,
+                    tokens_in=tokens_in // n,
+                    tokens_out=tokens_out // n,
+                    parse_error=parse_error,
+                )
+            )
+        return results
+
+    # ------------------------------------------------------------------
     # Helpers
     # ------------------------------------------------------------------
 
-    def _headers(self) -> dict[str, str]:
-        return {
+    def _headers(self, cache: bool = False) -> dict[str, str]:
+        h = {
             "x-api-key": self.api_key,
             "anthropic-version": _ANTHROPIC_VERSION,
             "content-type": "application/json",
         }
+        if cache:
+            h["anthropic-beta"] = "prompt-caching-2024-07-31"
+        return h

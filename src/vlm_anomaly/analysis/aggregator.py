@@ -241,7 +241,8 @@ def _recompute_metrics_for_group(
     labels, scores, preds = [], [], []
 
     # Use only the most-complete file for this model+category to avoid double-counting.
-    pattern = f"*_{grp['dataset']}_{grp['category']}.jsonl"
+    # The wildcard suffix covers both plain (*.jsonl) and variant files (*_fewshot_ens.jsonl).
+    pattern = f"*_{grp['dataset']}_{grp['category']}*.jsonl"
     candidates = list(results_dir.glob(pattern))
     best = _deduplicate_files(candidates)
 
