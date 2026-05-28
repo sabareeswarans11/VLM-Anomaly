@@ -120,6 +120,9 @@ node_modules/
 # Generated reports — keep local (paper in progress)
 REPORT.md
 original_report.md
+
+# Paper draft (local only — REAI 2026 submission)
+paper/
 results/explorer_data.json
 results/plots/
 
