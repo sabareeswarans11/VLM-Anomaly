@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftData
 
 @main
 struct VLMAnomalyEdgeApp: App {
@@ -9,6 +10,7 @@ struct VLMAnomalyEdgeApp: App {
             ContentView()
                 .environmentObject(modelStore)
         }
+        .modelContainer(for: BenchmarkRun.self)
     }
 }
 

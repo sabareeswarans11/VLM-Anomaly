@@ -40,7 +40,7 @@ struct BenchmarkView: View {
                 // Target row
                 Section("Reference Target") {
                     targetRow(label: "iPhone 16 Pro Max",
-                              model: "MiniCPM-V Q4_K_M",
+                              model: "MiniCPM-V 4.6 Q4_K_M",
                               firstToken: 2000,
                               tokPerSec: 17.9,
                               peakMB: nil)

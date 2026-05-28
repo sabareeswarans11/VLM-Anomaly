@@ -117,7 +117,9 @@ ios/**/Models/*.safetensors
 *.tmp
 node_modules/
 
-# Generated report and explorer payload
+# Generated reports — keep local (paper in progress)
+REPORT.md
+original_report.md
 results/explorer_data.json
 results/plots/
 

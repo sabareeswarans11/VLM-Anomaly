@@ -1,0 +1,509 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		19C9EC274D15B0CE4675AC30 /* AnomalyResponseParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580E9B0E5D9016B960753B35 /* AnomalyResponseParser.swift */; };
+		390835406248A2C48E594B84 /* llama.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 7FEAD76A93572B42A75A54CF /* llama.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		4B2BD2B1E6B33C401318E342 /* PromptBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3907CFBBC322D4A5F95FFA2A /* PromptBuilder.swift */; };
+		52A4D77F10E9C497B8B34882 /* BenchmarkView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C87F06AC01E0572BC71E7C7D /* BenchmarkView.swift */; };
+		590909AB22456840792EA5B0 /* llama.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7FEAD76A93572B42A75A54CF /* llama.xcframework */; };
+		731751EBCDCBE6613C689ABC /* CaptureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32AD6CEF5A40EF61362A937E /* CaptureView.swift */; };
+		8557ECB62828D0F064D3DC2D /* VLMAnomalyEdgeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A774832BA4E7C8129AF21C29 /* VLMAnomalyEdgeApp.swift */; };
+		8BDB523AD2A632FE866F4CCA /* ResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87634DCA8DECEFF603A7F409 /* ResultView.swift */; };
+		8CD3BD0DFB71775FA95EAA4D /* ParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C35541835605A380E394BDB7 /* ParserTests.swift */; };
+		BC339CE7F1CCAF1B27D894BF /* MiniCPMRunner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 931E1195881C791D56655965 /* MiniCPMRunner.swift */; };
+		F06B07436AF66EE484C1CD01 /* prompts in Resources */ = {isa = PBXBuildFile; fileRef = FE1C95883AA90C66C296171F /* prompts */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		8660E36E7A887162D8AE6183 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B09116CC66ECFFF15E81E39B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C5C9C305B034E563B8EE9E06;
+			remoteInfo = VLMAnomalyEdge;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		15C276F798A6B0CF9E2E2CAF /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				390835406248A2C48E594B84 /* llama.xcframework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		32AD6CEF5A40EF61362A937E /* CaptureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureView.swift; sourceTree = "<group>"; };
+		3907CFBBC322D4A5F95FFA2A /* PromptBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptBuilder.swift; sourceTree = "<group>"; };
+		580E9B0E5D9016B960753B35 /* AnomalyResponseParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnomalyResponseParser.swift; sourceTree = "<group>"; };
+		79190DAAA8E2F96D782300D3 /* VLMAnomalyEdge.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = VLMAnomalyEdge.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		7FEAD76A93572B42A75A54CF /* llama.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = llama.xcframework; path = "Frameworks/build-apple/llama.xcframework"; sourceTree = "<group>"; };
+		87634DCA8DECEFF603A7F409 /* ResultView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultView.swift; sourceTree = "<group>"; };
+		931E1195881C791D56655965 /* MiniCPMRunner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MiniCPMRunner.swift; sourceTree = "<group>"; };
+		A774832BA4E7C8129AF21C29 /* VLMAnomalyEdgeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VLMAnomalyEdgeApp.swift; sourceTree = "<group>"; };
+		C35541835605A380E394BDB7 /* ParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParserTests.swift; sourceTree = "<group>"; };
+		C87F06AC01E0572BC71E7C7D /* BenchmarkView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BenchmarkView.swift; sourceTree = "<group>"; };
+		D90CC62918FDB6C422B5475F /* VLMAnomalyEdgeTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = VLMAnomalyEdgeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		EF81944A4E49977E7F43692F /* LlavaSupport.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LlavaSupport.h; sourceTree = "<group>"; };
+		FE1C95883AA90C66C296171F /* prompts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = prompts; path = Resources/prompts; sourceTree = SOURCE_ROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		58F003107013647A2C735C2E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				590909AB22456840792EA5B0 /* llama.xcframework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		0CF20560EFE001A22F4BC0A7 /* Inference */ = {
+			isa = PBXGroup;
+			children = (
+				931E1195881C791D56655965 /* MiniCPMRunner.swift */,
+				3907CFBBC322D4A5F95FFA2A /* PromptBuilder.swift */,
+			);
+			path = Inference;
+			sourceTree = "<group>";
+		};
+		2A7FCE0845923A6C57400FBB /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				C87F06AC01E0572BC71E7C7D /* BenchmarkView.swift */,
+				32AD6CEF5A40EF61362A937E /* CaptureView.swift */,
+				87634DCA8DECEFF603A7F409 /* ResultView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		2CBCB65A1BFB5BFA31C42EAB /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				79190DAAA8E2F96D782300D3 /* VLMAnomalyEdge.app */,
+				D90CC62918FDB6C422B5475F /* VLMAnomalyEdgeTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		47F2D6A0A77ACC9E5C411B76 /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				C35541835605A380E394BDB7 /* ParserTests.swift */,
+			);
+			path = Tests;
+			sourceTree = "<group>";
+		};
+		608B70FF9A426B0A83EF4540 /* Parsing */ = {
+			isa = PBXGroup;
+			children = (
+				580E9B0E5D9016B960753B35 /* AnomalyResponseParser.swift */,
+			);
+			path = Parsing;
+			sourceTree = "<group>";
+		};
+		78E8A06EBB886C0CEE17B51B /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				FE1C95883AA90C66C296171F /* prompts */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		A1487C09CE030172E0F86619 /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				EF81944A4E49977E7F43692F /* LlavaSupport.h */,
+				A774832BA4E7C8129AF21C29 /* VLMAnomalyEdgeApp.swift */,
+				0CF20560EFE001A22F4BC0A7 /* Inference */,
+				608B70FF9A426B0A83EF4540 /* Parsing */,
+				2A7FCE0845923A6C57400FBB /* Views */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
+		CB4CB2E0878BFF3D917EE808 = {
+			isa = PBXGroup;
+			children = (
+				78E8A06EBB886C0CEE17B51B /* Resources */,
+				A1487C09CE030172E0F86619 /* Sources */,
+				47F2D6A0A77ACC9E5C411B76 /* Tests */,
+				D7E00BCBF53F9AE6715CC85F /* Frameworks */,
+				2CBCB65A1BFB5BFA31C42EAB /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		D7E00BCBF53F9AE6715CC85F /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				7FEAD76A93572B42A75A54CF /* llama.xcframework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		58E93DFB3BFA5217D3736279 /* VLMAnomalyEdgeTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CDA45EC050B22EFC9828FE0B /* Build configuration list for PBXNativeTarget "VLMAnomalyEdgeTests" */;
+			buildPhases = (
+				8F5C912DBB7ADE12E0A32D42 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				846831081CF8A52C6CC32721 /* PBXTargetDependency */,
+			);
+			name = VLMAnomalyEdgeTests;
+			packageProductDependencies = (
+			);
+			productName = VLMAnomalyEdgeTests;
+			productReference = D90CC62918FDB6C422B5475F /* VLMAnomalyEdgeTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		C5C9C305B034E563B8EE9E06 /* VLMAnomalyEdge */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3D62FD73B77C68BE239F7042 /* Build configuration list for PBXNativeTarget "VLMAnomalyEdge" */;
+			buildPhases = (
+				4989A312FAC3DFCB5E9C5FC9 /* Sources */,
+				581788417FF370501E6B0E87 /* Resources */,
+				58F003107013647A2C735C2E /* Frameworks */,
+				15C276F798A6B0CF9E2E2CAF /* Embed Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = VLMAnomalyEdge;
+			packageProductDependencies = (
+			);
+			productName = VLMAnomalyEdge;
+			productReference = 79190DAAA8E2F96D782300D3 /* VLMAnomalyEdge.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		B09116CC66ECFFF15E81E39B /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1600;
+				TargetAttributes = {
+				};
+			};
+			buildConfigurationList = 8DE0A62FD94289FB5163F2DF /* Build configuration list for PBXProject "VLMAnomalyEdge" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = CB4CB2E0878BFF3D917EE808;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 2CBCB65A1BFB5BFA31C42EAB /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				C5C9C305B034E563B8EE9E06 /* VLMAnomalyEdge */,
+				58E93DFB3BFA5217D3736279 /* VLMAnomalyEdgeTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		581788417FF370501E6B0E87 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F06B07436AF66EE484C1CD01 /* prompts in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		4989A312FAC3DFCB5E9C5FC9 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				19C9EC274D15B0CE4675AC30 /* AnomalyResponseParser.swift in Sources */,
+				52A4D77F10E9C497B8B34882 /* BenchmarkView.swift in Sources */,
+				731751EBCDCBE6613C689ABC /* CaptureView.swift in Sources */,
+				BC339CE7F1CCAF1B27D894BF /* MiniCPMRunner.swift in Sources */,
+				4B2BD2B1E6B33C401318E342 /* PromptBuilder.swift in Sources */,
+				8BDB523AD2A632FE866F4CCA /* ResultView.swift in Sources */,
+				8557ECB62828D0F064D3DC2D /* VLMAnomalyEdgeApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8F5C912DBB7ADE12E0A32D42 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8CD3BD0DFB71775FA95EAA4D /* ParserTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		846831081CF8A52C6CC32721 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C5C9C305B034E563B8EE9E06 /* VLMAnomalyEdge */;
+			targetProxy = 8660E36E7A887162D8AE6183 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		273CFF9702E2F376702C406C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		37AE5381492DDE3B9FF84F25 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		7B9DF53CF9B4E90CBD134993 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.vlmanomaly.edge.tests;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.10;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/VLMAnomalyEdge.app/VLMAnomalyEdge";
+			};
+			name = Release;
+		};
+		7F8D3901DDF408D362558BA3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"Frameworks/build-apple\"",
+				);
+				INFOPLIST_FILE = Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.vlmanomaly.edge;
+				SDKROOT = iphoneos;
+				SWIFT_OBJC_BRIDGING_HEADER = Sources/LlavaSupport.h;
+				SWIFT_VERSION = 5.10;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		86552F205A58B1B1535FBA24 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.vlmanomaly.edge.tests;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.10;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/VLMAnomalyEdge.app/VLMAnomalyEdge";
+			};
+			name = Debug;
+		};
+		8C98EC66F00E12E4C9C23858 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"Frameworks/build-apple\"",
+				);
+				INFOPLIST_FILE = Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.vlmanomaly.edge;
+				SDKROOT = iphoneos;
+				SWIFT_OBJC_BRIDGING_HEADER = Sources/LlavaSupport.h;
+				SWIFT_VERSION = 5.10;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		3D62FD73B77C68BE239F7042 /* Build configuration list for PBXNativeTarget "VLMAnomalyEdge" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7F8D3901DDF408D362558BA3 /* Debug */,
+				8C98EC66F00E12E4C9C23858 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		8DE0A62FD94289FB5163F2DF /* Build configuration list for PBXProject "VLMAnomalyEdge" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				37AE5381492DDE3B9FF84F25 /* Debug */,
+				273CFF9702E2F376702C406C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		CDA45EC050B22EFC9828FE0B /* Build configuration list for PBXNativeTarget "VLMAnomalyEdgeTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				86552F205A58B1B1535FBA24 /* Debug */,
+				7B9DF53CF9B4E90CBD134993 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = B09116CC66ECFFF15E81E39B /* Project object */;
+}

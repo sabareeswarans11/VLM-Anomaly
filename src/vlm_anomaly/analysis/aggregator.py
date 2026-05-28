@@ -144,6 +144,18 @@ def cost_accuracy_table(results_dir: str | Path) -> pd.DataFrame:
         except Exception as exc:
             log.warning("aggregator.override.error", error=str(exc))
 
+    # Apply consolidated AUROC overrides (e.g. few-shot ensemble with partial category coverage)
+    auroc_override_path = results_dir / "auroc_override.json"
+    if auroc_override_path.exists():
+        try:
+            auroc_overrides = _json.loads(auroc_override_path.read_text())
+            for model_id, consolidated_auroc in auroc_overrides.items():
+                mask = agg["model_id"] == model_id
+                if mask.any():
+                    agg.loc[mask, "mean_auroc"] = float(consolidated_auroc)
+        except Exception as exc:
+            log.warning("aggregator.auroc_override.error", error=str(exc))
+
     agg["mean_cost_per_image"] = agg["total_cost_usd"] / agg["n_images_total"].replace(0, 1)
     agg = agg.drop(columns=["n_images_total"])
     return agg.sort_values("mean_auroc", ascending=False)

@@ -1,0 +1,56 @@
+name: VLMAnomalyEdge
+options:
+  bundleIdPrefix: com.vlmanomaly
+  deploymentTarget:
+    iOS: "17.0"
+  xcodeVersion: "16.0"
+  createIntermediateGroups: true
+
+targets:
+  VLMAnomalyEdge:
+    type: application
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - path: Sources
+      # Folder reference — keeps prompts/ as a subdirectory in the bundle so
+      # bundle.urls(forResourcesWithExtension:subdirectory:"prompts") works.
+      - path: Resources/prompts
+        buildPhase: resources
+        type: folder
+    dependencies:
+      # Pre-built llama.cpp xcframework (core, no mtmd/vision).
+      # Run scripts/build-ios-multimodal.sh to get Frameworks/build-apple-mtmd/llama.xcframework
+      # which includes mtmd, then swap the path below and add LLAVA_AVAILABLE.
+      - framework: Frameworks/build-apple/llama.xcframework
+        embed: true
+    info:
+      path: Info.plist
+      properties:
+        CFBundleDisplayName: VLM Anomaly Edge
+        NSPhotoLibraryUsageDescription: "Select photos of equipment to analyze for defects offline."
+        NSCameraUsageDescription: "Photograph equipment to analyze for defects — no network required."
+        UIRequiresFullScreen: false
+        UILaunchScreen: {}
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.vlmanomaly.edge
+        SWIFT_VERSION: "5.10"
+        IPHONEOS_DEPLOYMENT_TARGET: "17.0"
+        TARGETED_DEVICE_FAMILY: "1"
+        SWIFT_OBJC_BRIDGING_HEADER: "Sources/LlavaSupport.h"
+        # Add LLAVA_AVAILABLE here after running scripts/build-ios-multimodal.sh
+        # SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) LLAVA_AVAILABLE"
+
+  VLMAnomalyEdgeTests:
+    type: bundle.unit-test
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - path: Tests
+    dependencies:
+      - target: VLMAnomalyEdge
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.vlmanomaly.edge.tests
+        SWIFT_VERSION: "5.10"
