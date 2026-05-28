@@ -117,8 +117,7 @@ ios/**/Models/*.safetensors
 *.tmp
 node_modules/
 
-# Generated reports — keep local (paper in progress)
-REPORT.md
+# Full generated report — keep local (paper in progress)
 original_report.md
 
 # Paper draft (local only — REAI 2026 submission)
